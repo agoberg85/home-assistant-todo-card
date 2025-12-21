@@ -2,7 +2,7 @@
 
 A custom Home Assistant dashboard card for managing standard Todo entities. It supports subtasks, different modes for tasks or shopping lists, and various styling options.
 
-![Card Preview](images/screenshot.png)
+![Card Preview](screenshot.jpg)
 
 ## Features
 
