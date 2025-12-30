@@ -21,8 +21,15 @@ class TodoListCard extends LitElement {
       _config: { state: true },
       _tasks: { state: true },
       _isAddAreaOpen: { state: true },
+      
+      // Filter states
+      _isFilterOpen: { state: true },
+      _filters: { state: true },
+      
       _editedTaskId: { state: true },
       _expandedTaskId: { state: true },
+      
+      // Add/Edit inputs
       _newItemSummary: { state:true },
       _newItemDescription: { state: true },
       _newItemPriority: { state: true },
@@ -30,6 +37,8 @@ class TodoListCard extends LitElement {
       _newItemLink: { state: true },
       _newItemQuantity: { state: true },
       _newItemDueDate: { state: true },
+      _newItemDueTime: { state: true },
+      
       _editSummary: { state: true },
       _editDescription: { state: true },
       _editPriority: { state: true },
@@ -37,6 +46,8 @@ class TodoListCard extends LitElement {
       _editLink: { state: true },
       _editQuantity: { state: true },
       _editDueDate: { state: true },
+      _editDueTime: { state: true },
+      
       _isLoading: { state: true },
       _error: { state: true },
     };
@@ -62,6 +73,7 @@ class TodoListCard extends LitElement {
       show_priority: true,
       confirm_delete: true,
       auto_complete_parent: false,
+      show_filter_menu: true,
     };
   }
   
@@ -146,8 +158,42 @@ class TodoListCard extends LitElement {
   
   constructor() {
     super();
-    this._tasks = []; this._isAddAreaOpen = false; this._editedTaskId = null; this._expandedTaskId = null; this._isLoading = false; this._error = null;
-    this._resetNewItemInputs(); this._resetEditInputs();
+    this._tasks = []; 
+    this._isAddAreaOpen = false; 
+    this._editedTaskId = null; 
+    this._expandedTaskId = null; 
+    this._isLoading = false; 
+    this._error = null;
+    this._isFilterOpen = false;
+    // Default filters: show everything
+    this._filters = { active: true, overdue: true, completed: true };
+    this._resetNewItemInputs(); 
+    this._resetEditInputs();
+    this._boundClickListener = this._handleOutsideClick.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener('click', this._boundClickListener);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener('click', this._boundClickListener);
+  }
+  
+  updated(changedProperties) {
+    // This dynamically brings the card to the front when the menu is open,
+    // preventing the menu from being hidden by the card below it.
+    if (changedProperties.has('_isFilterOpen')) {
+        this.style.zIndex = this._isFilterOpen ? '20' : '';
+    }
+  }
+
+  _handleOutsideClick(e) {
+    if (this._isFilterOpen) {
+        this._isFilterOpen = false;
+    }
   }
   
   _resetNewItemInputs() {
@@ -161,7 +207,20 @@ class TodoListCard extends LitElement {
   setConfig(config) {
     if (!config.entity) { throw new Error("You need to define a todo entity"); }
     this._config = {
-      mode: 'tasks', card_background: DEFAULT_CARD_BACKGROUND, card_color: DEFAULT_CARD_COLOR, completed_color: DEFAULT_COMPLETED_COLOR, icon_background: DEFAULT_ICON_BACKGROUND, text_color: DEFAULT_TEXT_COLOR, completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR, show_priority: true, confirm_delete: true, sort_by: 'priority', sort_order: 'asc', auto_complete_parent: false, ...config
+      mode: 'tasks', 
+      card_background: DEFAULT_CARD_BACKGROUND, 
+      card_color: DEFAULT_CARD_COLOR, 
+      completed_color: DEFAULT_COMPLETED_COLOR, 
+      icon_background: DEFAULT_ICON_BACKGROUND, 
+      text_color: DEFAULT_TEXT_COLOR, 
+      completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR, 
+      show_priority: true, 
+      confirm_delete: true, 
+      sort_by: 'priority', 
+      sort_order: 'asc', 
+      auto_complete_parent: false, 
+      show_filter_menu: true,
+      ...config
     };
   }
   
@@ -178,7 +237,13 @@ class TodoListCard extends LitElement {
   
   async fetchTodoItems() {
     if (!this._hass || !this._config.entity) return;
-    this._isLoading = true; this._error = null;
+    
+    // Only show loading spinner if we have no data at all (initial load)
+    if (!this._tasks || this._tasks.length === 0) {
+        this._isLoading = true; 
+    }
+    
+    this._error = null;
     try {
       let items;
       try {
@@ -192,8 +257,10 @@ class TodoListCard extends LitElement {
       this._tasks = (items.items || []).map(task => ({ ...task, _cachedMetadata: this._parseTaskMetadata(task.description) }));
     } catch (err) {
       console.error('Error fetching todo items:', err);
-      this._error = `Failed to load items: ${err.message}`; this._tasks = [];
-    } finally { this._isLoading = false; }
+      this._error = `Failed to load items: ${err.message}`; 
+    } finally { 
+        this._isLoading = false; 
+    }
   }
   
   _parseTaskMetadata(desc) {
@@ -266,21 +333,89 @@ class TodoListCard extends LitElement {
   _getPriorityInfo(priority) { const prio = parseInt(priority, 10); if (isNaN(prio)) return null; if (prio <= 1) return { text: 'Urgent', color: 'var(--error-color)' }; if (prio <= 4) return { text: 'High', color: 'var(--error-color)' }; if (prio <= 7) return { text: 'Medium', color: 'var(--warning-color)' }; return { text: 'Low', color: 'var(--success-color)' }; }
   _formatDueDate(dueDateStr) { if (!dueDateStr) return null; try { const date = new Date(dueDateStr); const now = new Date(); const hasTime = dueDateStr.includes('T') && !dueDateStr.match(/T00:00:00/); const pad = (num) => String(num).padStart(2, '0'); const day = date.getDate(); const month = new Intl.DateTimeFormat(this._hass.locale?.language || 'en', { month: 'short' }).format(date).toLowerCase(); let result = `${day}.${month}`; if (date.getFullYear() !== now.getFullYear()) { result += `.${date.getFullYear()}`; } if (hasTime) { const hours = pad(date.getHours()); const minutes = pad(date.getMinutes()); result += `, ${hours}:${minutes}`; } return result; } catch (e) { console.error('Date formatting error:', e); return dueDateStr; } }
   
+  _toggleFilter(type) {
+    this._filters = { ...this._filters, [type]: !this._filters[type] };
+  }
+
   render() {
     if (!this._hass || !this._config) return html``;
     const entityState = this._hass.states[this._config.entity];
     if (!entityState) { return html`<ha-card><div class="warning">Entity not found: ${this._config.entity}</div></ha-card>`; }
-    const allTasks = Array.isArray(this._tasks) ? this._tasks : [];
+    
+    let allTasks = Array.isArray(this._tasks) ? this._tasks : [];
+
+    // Filter Logic
+    if (this._config.show_filter_menu) {
+        allTasks = allTasks.filter(task => {
+            const isCompleted = task.status === 'completed';
+            const overdueStatus = !isCompleted ? this._getDueDateStatus(task.due) : null;
+            const isOverdue = overdueStatus === 'overdue';
+            const isActive = !isCompleted && !isOverdue;
+
+            if (isCompleted && !this._filters.completed) return false;
+            if (isOverdue && !this._filters.overdue) return false;
+            if (isActive && !this._filters.active) return false;
+            return true;
+        });
+    }
+
     const sortFn = (a, b) => {
       const sortBy = this._config.sort_by || 'priority'; const sortOrder = this._config.sort_order || 'asc'; const direction = sortOrder === 'desc' ? -1 : 1; let valA, valB;
       switch (sortBy) { case 'duedate': valA = a.due ? new Date(a.due).getTime() : Infinity; valB = b.due ? new Date(b.due).getTime() : Infinity; break; case 'priority': valA = parseInt(a._cachedMetadata?.priority ?? DEFAULT_PRIORITY, 10); valB = parseInt(b._cachedMetadata?.priority ?? DEFAULT_PRIORITY, 10); break; case 'title': default: valA = a.summary?.toLowerCase() || ''; valB = b.summary?.toLowerCase() || ''; break; }
       if (valA < valB) return -1 * direction; if (valA > valB) return 1 * direction; return 0;
     };
+
     const activeItems = allTasks.filter(t => t.status === 'needs_action').sort(sortFn);
     const completedItems = allTasks.filter(t => t.status === 'completed').sort(sortFn);
+    
     const isFrameless = this._config.card_background === 'none'; const headerPadding = isFrameless ? '6px 4px 12px 16px' : '6px 20px 12px 20px'; const contentPadding = isFrameless ? '0 4px 4px' : '0 12px 12px';
     let countText = this._config.mode === 'tasks' ? `${activeItems.length} tasks · ${completedItems.length} completed` : `${activeItems.length} items · ${completedItems.length} checked`;
-    return html`<ha-card style="background: ${this._config.card_background};"><div class="card-header" style="padding: ${headerPadding};"><div class="header-text"><div class="name">${this._config.title ?? ''}</div><div class="header-count">${countText}</div></div><div class="header-buttons">${completedItems.length > 0 ? html`<ha-icon-button class="clear-button" @click="${this._handleClearCompleted}" title="Clear Completed Items"><ha-icon icon="mdi:broom"></ha-icon></ha-icon-button>` : ''}<ha-icon-button class="add-button" @click="${() => { this._isAddAreaOpen = !this._isAddAreaOpen; this._editedTaskId = null; this._resetEditInputs(); }}"><ha-icon icon="mdi:plus"></ha-icon></ha-icon-button></div></div><div class="card-content" style="padding: ${contentPadding};">${this._error ? html`<div class="error-message" @click="${() => this._error = null}">${this._error}</div>` : ''}${this._isLoading ? html`<div class="loading">Loading...</div>` : ''}${this._isAddAreaOpen ? this._renderAddForm() : ''}${allTasks.length === 0 && !this._isAddAreaOpen && !this._isLoading ? html`<div class="empty-list">No items</div>` : ''}${activeItems.map(item => this._renderItem(item))}${completedItems.map(item => this._renderItem(item))}</div></ha-card>`;
+    
+    return html`
+      <ha-card style="background: ${this._config.card_background};">
+        <div class="card-header" style="padding: ${headerPadding};">
+          <div class="header-text">
+            <div class="name">${this._config.title ?? ''}</div>
+            <div class="header-count">${countText}</div>
+          </div>
+          <div class="header-buttons">
+            ${this._config.show_filter_menu ? html`
+            <div class="filter-menu-container">
+                <ha-icon-button class="filter-button" @click="${(e) => { e.stopPropagation(); this._isFilterOpen = !this._isFilterOpen; }}">
+                    <ha-icon icon="mdi:filter-variant"></ha-icon>
+                </ha-icon-button>
+                ${this._isFilterOpen ? html`
+                <div class="filter-dropdown" @click="${(e) => e.stopPropagation()}">
+                    <div class="filter-option" @click="${() => this._toggleFilter('active')}">
+                        <ha-icon icon="${this._filters.active ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
+                        <span>Active</span>
+                    </div>
+                    <div class="filter-option" @click="${() => this._toggleFilter('overdue')}">
+                        <ha-icon icon="${this._filters.overdue ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
+                        <span>Overdue</span>
+                    </div>
+                    <div class="filter-option" @click="${() => this._toggleFilter('completed')}">
+                        <ha-icon icon="${this._filters.completed ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
+                        <span>Completed</span>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+            ` : ''}
+            ${completedItems.length > 0 ? html`<ha-icon-button class="clear-button" @click="${this._handleClearCompleted}" title="Clear Completed Items"><ha-icon icon="mdi:broom"></ha-icon></ha-icon-button>` : ''}
+            <ha-icon-button class="add-button" @click="${() => { this._isAddAreaOpen = !this._isAddAreaOpen; this._editedTaskId = null; this._resetEditInputs(); }}"><ha-icon icon="mdi:plus"></ha-icon></ha-icon-button>
+          </div>
+        </div>
+        <div class="card-content" style="padding: ${contentPadding};">
+          ${this._error ? html`<div class="error-message" @click="${() => this._error = null}">${this._error}</div>` : ''}
+          ${this._isLoading ? html`<div class="loading">Loading...</div>` : ''}
+          ${this._isAddAreaOpen ? this._renderAddForm() : ''}
+          ${allTasks.length === 0 && !this._isAddAreaOpen && !this._isLoading ? html`<div class="empty-list">No items</div>` : ''}
+          ${activeItems.map(item => this._renderItem(item))}
+          ${completedItems.map(item => this._renderItem(item))}
+        </div>
+      </ha-card>
+    `;
   }
   
   _renderAddForm() { if (this._config.mode === 'tasks') return this._renderAddTaskForm(); if (this._config.mode === 'shopping') return this._renderAddShoppingItemForm(); return html``; }
@@ -400,13 +535,23 @@ class TodoListCard extends LitElement {
   
   static get styles() {
     return css`
-      ha-card { display: flex; flex-direction: column; height: 100%; overflow: hidden; isolation: isolate;}
+      :host {
+        display: block;
+        position: relative; /* Allows z-index to work */
+      }
+      ha-card { 
+        display: flex; 
+        flex-direction: column; 
+        height: 100%; 
+        overflow: visible; /* Allows dropdown to extend outside */
+        /* isolation: isolate; REMOVED to allow stacking interactions with siblings */
+      }
       .card-header { display: flex; justify-content: space-between; align-items: center; }
       .header-text { flex-grow: 1; }
       .card-header .name { font-size: 20px; font-weight: 500; }
       .header-count { font-size: 12px; color: var(--secondary-text-color); opacity: 0.9; }
-      .header-buttons { display: flex; align-items: center; }
-      .clear-button, .add-button { color: var(--secondary-text-color); }
+      .header-buttons { display: flex; align-items: center; gap: 4px; }
+      .clear-button, .add-button, .filter-button { color: var(--secondary-text-color); }
       ha-icon {display:flex!important;}
       .btn {border-radius: 20px; padding: 4px 12px; pointer: cursor;}
       .btn-edit, .btn-add {background:var(--primary-color); color: var(--mdc-theme-on-secondary); }
@@ -455,6 +600,32 @@ class TodoListCard extends LitElement {
       .delete-subtask { --mdc-icon-button-size: 32px; color: var(--secondary-text-color); }
       .add-subtask-row { display: flex; gap: 8px; align-items: center; }
       .add-subtask-row ha-textfield { flex-grow: 1; --mdc-text-field-fill-color: rgba(0,0,0,0.2); }
+      
+      /* Filter Menu Styles */
+      .filter-menu-container { position: relative; }
+      .filter-dropdown { 
+        position: absolute; 
+        top: 100%; 
+        right: 0; 
+        z-index: 100; 
+        background: var(--ha-card-background, var(--card-background-color, white)); 
+        box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
+        border-radius: 4px; 
+        padding: 8px 0; 
+        min-width: 150px;
+        border: 1px solid var(--divider-color, rgba(0,0,0,0.12));
+      }
+      .filter-option { 
+        display: flex; 
+        align-items: center; 
+        padding: 8px 16px; 
+        cursor: pointer; 
+        transition: background-color 0.1s; 
+      }
+      .filter-option:hover { background-color: rgba(128,128,128,0.1); }
+      .filter-option ha-icon { margin-right: 12px; --mdc-icon-size: 20px; color: var(--primary-color); }
+      .filter-option span { font-size: 14px; color: var(--primary-text-color); }
+
       @keyframes slide-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes slide-down-subtle { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     `;
@@ -465,7 +636,7 @@ class TodoListCardEditor extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
-      _config: { type: Object }, // The fix is here
+      _config: { type: Object }, 
     };
   }
 
@@ -514,6 +685,7 @@ class TodoListCardEditor extends LitElement {
         <ha-formfield label="Show Priority"><ha-switch .checked=${this._config.show_priority !== false} @change=${this._showPriorityChanged}></ha-switch></ha-formfield>
         <ha-formfield label="Confirm Before Delete"><ha-switch .checked=${this._config.confirm_delete !== false} @change=${this._confirmDeleteChanged}></ha-switch></ha-formfield>
         <ha-formfield label="Auto-complete parent task"><ha-switch .checked=${this._config.auto_complete_parent === true} @change=${this._autoCompleteChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="Show Filter Menu"><ha-switch .checked=${this._config.show_filter_menu !== false} @change=${this._showFilterMenuChanged}></ha-switch></ha-formfield>
       </div>
     `;
   }
@@ -531,6 +703,7 @@ class TodoListCardEditor extends LitElement {
   _showPriorityChanged(ev) { this.configChanged({ ...this._config, show_priority: ev.target.checked }); }
   _confirmDeleteChanged(ev) { this.configChanged({ ...this._config, confirm_delete: ev.target.checked }); }
   _autoCompleteChanged(ev) { this.configChanged({ ...this._config, auto_complete_parent: ev.target.checked }); }
+  _showFilterMenuChanged(ev) { this.configChanged({ ...this._config, show_filter_menu: ev.target.checked }); }
   static get styles() {
     return css`.card-config { display: flex; flex-direction: column; gap: 16px; padding: 16px 0; } .row { display: flex; gap: 16px; } .row > * { flex: 1; } ha-formfield { display: flex; align-items: center; padding: 8px 0; }`;
   }
