@@ -165,7 +165,7 @@ class TodoListCard extends LitElement {
     this._isLoading = false; 
     this._error = null;
     this._isFilterOpen = false;
-    // Default filters: show everything
+    // Default filters (will be overwritten by loadFilters if saved data exists)
     this._filters = { active: true, overdue: true, completed: true };
     this._resetNewItemInputs(); 
     this._resetEditInputs();
@@ -183,8 +183,6 @@ class TodoListCard extends LitElement {
   }
   
   updated(changedProperties) {
-    // This dynamically brings the card to the front when the menu is open,
-    // preventing the menu from being hidden by the card below it.
     if (changedProperties.has('_isFilterOpen')) {
         this.style.zIndex = this._isFilterOpen ? '20' : '';
     }
@@ -222,6 +220,28 @@ class TodoListCard extends LitElement {
       show_filter_menu: true,
       ...config
     };
+    // Load persistent filters
+    this._loadFilters();
+  }
+  
+  _loadFilters() {
+    if (!this._config?.entity) return;
+    const key = `todo-list-card-filters-${this._config.entity}`;
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      try {
+        this._filters = JSON.parse(stored);
+      } catch (e) {
+        console.warn("Failed to parse stored filters, resetting to default");
+        this._filters = { active: true, overdue: true, completed: true };
+      }
+    }
+  }
+
+  _saveFilters() {
+    if (!this._config?.entity) return;
+    const key = `todo-list-card-filters-${this._config.entity}`;
+    localStorage.setItem(key, JSON.stringify(this._filters));
   }
   
   set hass(hass) {
@@ -335,6 +355,7 @@ class TodoListCard extends LitElement {
   
   _toggleFilter(type) {
     this._filters = { ...this._filters, [type]: !this._filters[type] };
+    this._saveFilters();
   }
 
   render() {
@@ -381,6 +402,7 @@ class TodoListCard extends LitElement {
           <div class="header-buttons">
             ${this._config.show_filter_menu ? html`
             <div class="filter-menu-container">
+                ${completedItems.length > 0 ? html`<ha-icon-button class="clear-button" @click="${this._handleClearCompleted}" title="Clear Completed Items"><ha-icon icon="mdi:broom"></ha-icon></ha-icon-button>` : ''}
                 <ha-icon-button class="filter-button" @click="${(e) => { e.stopPropagation(); this._isFilterOpen = !this._isFilterOpen; }}">
                     <ha-icon icon="mdi:filter-variant"></ha-icon>
                 </ha-icon-button>
@@ -402,7 +424,6 @@ class TodoListCard extends LitElement {
                 ` : ''}
             </div>
             ` : ''}
-            ${completedItems.length > 0 ? html`<ha-icon-button class="clear-button" @click="${this._handleClearCompleted}" title="Clear Completed Items"><ha-icon icon="mdi:broom"></ha-icon></ha-icon-button>` : ''}
             <ha-icon-button class="add-button" @click="${() => { this._isAddAreaOpen = !this._isAddAreaOpen; this._editedTaskId = null; this._resetEditInputs(); }}"><ha-icon icon="mdi:plus"></ha-icon></ha-icon-button>
           </div>
         </div>
@@ -491,7 +512,7 @@ class TodoListCard extends LitElement {
             ${hasDescription || hasDueDate ? html`
               <div class="priority">
                 ${hasDescription ? html`<span>${description}</span>` : ''}
-                ${hasDescription && hasDueDate ? html`<span class="separator"> • </span>` : ''}
+                ${hasDescription && hasDueDate ? html`<span class="separator"> </span>` : ''}
                 ${hasDueDate ? html`<span class="due-date-wrapper"><ha-icon icon="mdi:clock-time-four"></ha-icon>${this._formatDueDate(dueDate)}</span>` : ''}
               </div>
             ` : ''}
@@ -570,7 +591,7 @@ class TodoListCard extends LitElement {
       .completed .summary > span:first-child { text-decoration: line-through; }
       .completed .priority { color: inherit; }
       .icon { display: flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
-      .task-text { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; padding: 8px 0; }
+      .task-text { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; padding: 0; }
       .quantity { font-weight: normal; opacity: 0.8; margin-left: 4px; flex-shrink: 0; }
       .priority { font-size: 14px; font-weight: 400; opacity: 0.7; display: flex; align-items: center; flex-wrap: wrap; }
       .priority .separator { margin: 0 3px; }
