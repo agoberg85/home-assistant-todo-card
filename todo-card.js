@@ -2,7 +2,7 @@ import {
   LitElement,
   html,
   css
-} from 'https://cdn.skypack.dev/lit';
+} from 'https://cdn.jsdelivr.net/npm/lit@3/+esm';
 
 // Class-level constants for re-use
 const DEFAULT_PRIORITY = '5';
@@ -21,18 +21,18 @@ class TodoListCard extends LitElement {
       _config: { state: true },
       _tasks: { state: true },
       _isAddAreaOpen: { state: true },
-      
+
       // Filter & Search states
       _isFilterOpen: { state: true },
       _isSearchOpen: { state: true },
       _searchQuery: { state: true },
       _filters: { state: true },
-      
+
       _editedTaskId: { state: true },
       _expandedTaskId: { state: true },
-      
+
       // Add/Edit inputs
-      _newItemSummary: { state:true },
+      _newItemSummary: { state: true },
       _newItemDescription: { state: true },
       _newItemPriority: { state: true },
       _newItemIcon: { state: true },
@@ -40,7 +40,7 @@ class TodoListCard extends LitElement {
       _newItemQuantity: { state: true },
       _newItemDueDate: { state: true },
       _newItemDueTime: { state: true },
-      
+
       _editSummary: { state: true },
       _editDescription: { state: true },
       _editPriority: { state: true },
@@ -49,7 +49,7 @@ class TodoListCard extends LitElement {
       _editQuantity: { state: true },
       _editDueDate: { state: true },
       _editDueTime: { state: true },
-      
+
       _isLoading: { state: true },
       _error: { state: true },
     };
@@ -80,7 +80,7 @@ class TodoListCard extends LitElement {
       show_clear_button: true,
     };
   }
-  
+
   _generateSubtaskUid() {
     return `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
@@ -137,13 +137,13 @@ class TodoListCard extends LitElement {
 
     const newMetadata = { ...metadata, subtasks: newSubtasks };
     await this._updateTaskMetadata(task, newMetadata, true);
-    
+
     if (this._config.auto_complete_parent && task.status !== 'completed' && allComplete) {
-        await this._handleStatusUpdate(ev, task);
+      await this._handleStatusUpdate(ev, task);
     } else if (this._config.auto_complete_parent && task.status === 'completed' && !allComplete) {
-        await this._handleStatusUpdate(ev, task);
+      await this._handleStatusUpdate(ev, task);
     } else {
-        await this.fetchTodoItems();
+      await this.fetchTodoItems();
     }
   }
 
@@ -159,21 +159,21 @@ class TodoListCard extends LitElement {
     this._expandedTaskId = this._expandedTaskId === taskUid ? null : taskUid;
     this._editedTaskId = null;
   }
-  
+
   constructor() {
     super();
-    this._tasks = []; 
-    this._isAddAreaOpen = false; 
-    this._editedTaskId = null; 
-    this._expandedTaskId = null; 
-    this._isLoading = false; 
+    this._tasks = [];
+    this._isAddAreaOpen = false;
+    this._editedTaskId = null;
+    this._expandedTaskId = null;
+    this._isLoading = false;
     this._error = null;
     this._isFilterOpen = false;
     this._isSearchOpen = false;
     this._searchQuery = '';
     // Default filters (will be overwritten by loadFilters if saved data exists)
     this._filters = { active: true, overdue: true, completed: true };
-    this._resetNewItemInputs(); 
+    this._resetNewItemInputs();
     this._resetEditInputs();
     this._boundClickListener = this._handleOutsideClick.bind(this);
   }
@@ -187,42 +187,42 @@ class TodoListCard extends LitElement {
     super.disconnectedCallback();
     document.removeEventListener('click', this._boundClickListener);
   }
-  
+
   updated(changedProperties) {
     if (changedProperties.has('_isFilterOpen')) {
-        this.style.zIndex = this._isFilterOpen ? '20' : '';
+      this.style.zIndex = this._isFilterOpen ? '20' : '';
     }
   }
 
   _handleOutsideClick(e) {
     if (this._isFilterOpen) {
-        this._isFilterOpen = false;
+      this._isFilterOpen = false;
     }
   }
-  
+
   _resetNewItemInputs() {
     this._newItemSummary = ''; this._newItemDescription = ''; this._newItemPriority = DEFAULT_PRIORITY; this._newItemIcon = DEFAULT_ICON; this._newItemLink = ''; this._newItemQuantity = ''; this._newItemDueDate = ''; this._newItemDueTime = '';
   }
-  
+
   _resetEditInputs() {
     this._editSummary = ''; this._editDescription = ''; this._editPriority = DEFAULT_PRIORITY; this._editIcon = DEFAULT_ICON; this._editLink = ''; this._editQuantity = ''; this._editDueDate = ''; this._editDueTime = '';
   }
-  
+
   setConfig(config) {
     if (!config.entity) { throw new Error("You need to define a todo entity"); }
     this._config = {
-      mode: 'tasks', 
-      card_background: DEFAULT_CARD_BACKGROUND, 
-      card_color: DEFAULT_CARD_COLOR, 
-      completed_color: DEFAULT_COMPLETED_COLOR, 
-      icon_background: DEFAULT_ICON_BACKGROUND, 
-      text_color: DEFAULT_TEXT_COLOR, 
-      completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR, 
+      mode: 'tasks',
+      card_background: DEFAULT_CARD_BACKGROUND,
+      card_color: DEFAULT_CARD_COLOR,
+      completed_color: DEFAULT_COMPLETED_COLOR,
+      icon_background: DEFAULT_ICON_BACKGROUND,
+      text_color: DEFAULT_TEXT_COLOR,
+      completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR,
       show_priority: true,
-      confirm_delete: true, 
-      sort_by: 'priority', 
-      sort_order: 'asc', 
-      auto_complete_parent: false, 
+      confirm_delete: true,
+      sort_by: 'priority',
+      sort_order: 'asc',
+      auto_complete_parent: false,
       show_filter_menu: true,
       show_search_button: true,
       show_clear_button: true,
@@ -231,7 +231,7 @@ class TodoListCard extends LitElement {
     // Load persistent filters
     this._loadFilters();
   }
-  
+
   _loadFilters() {
     if (!this._config?.entity) return;
     const key = `todo-list-card-filters-${this._config.entity}`;
@@ -251,7 +251,7 @@ class TodoListCard extends LitElement {
     const key = `todo-list-card-filters-${this._config.entity}`;
     localStorage.setItem(key, JSON.stringify(this._filters));
   }
-  
+
   set hass(hass) {
     const oldHass = this._hass;
     this._hass = hass;
@@ -262,15 +262,15 @@ class TodoListCard extends LitElement {
       this.fetchTodoItems();
     }
   }
-  
+
   async fetchTodoItems() {
     if (!this._hass || !this._config.entity) return;
-    
+
     // Only show loading spinner if we have no data at all (initial load)
     if (!this._tasks || this._tasks.length === 0) {
-        this._isLoading = true; 
+      this._isLoading = true;
     }
-    
+
     this._error = null;
     try {
       let items;
@@ -285,12 +285,12 @@ class TodoListCard extends LitElement {
       this._tasks = (items.items || []).map(task => ({ ...task, _cachedMetadata: this._parseTaskMetadata(task.description) }));
     } catch (err) {
       console.error('Error fetching todo items:', err);
-      this._error = `Failed to load items: ${err.message}`; 
-    } finally { 
-        this._isLoading = false; 
+      this._error = `Failed to load items: ${err.message}`;
+    } finally {
+      this._isLoading = false;
     }
   }
-  
+
   _parseTaskMetadata(desc) {
     try {
       const data = JSON.parse(desc || '{}');
@@ -299,72 +299,72 @@ class TodoListCard extends LitElement {
       return { description: '', priority: DEFAULT_PRIORITY, icon: DEFAULT_ICON, link: '', quantity: '', subtasks: [] };
     }
   }
-  
+
   _sanitizePriority(val) { const num = parseInt(val); return isNaN(num) ? DEFAULT_PRIORITY : Math.max(1, Math.min(10, num)).toString(); }
   _sanitizeText(txt) { return typeof txt === 'string' ? txt.replace(/[<>"']/g, '') : ''; }
   _sanitizeUrl(url) { try { const parsed = new URL(url.startsWith('http') ? url : `https://${url}`); if (!['http:', 'https:'].includes(parsed.protocol)) { return ''; } return parsed.href; } catch { return ''; } }
-  
+
   async _handleStatusUpdate(ev, task) {
     ev.stopPropagation();
     try { await this._hass.callService("todo", "update_item", { item: task.uid, status: task.status === "needs_action" ? "completed" : "needs_action" }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error updating status:', err); this._error = `Failed to update item: ${err.message}`; this.fetchTodoItems(); }
   }
-  
+
   async _handleAddItem() {
     if (!this._newItemSummary.trim()) { this._error = "Item name cannot be empty"; return; }
     this._isAddAreaOpen = false; let metadata = {};
     if (this._newItemDescription.trim()) metadata.description = this._sanitizeText(this._newItemDescription.trim());
-    
+
     // Config mode handling for metadata
     if (this._config.mode === 'tasks') {
-        metadata.priority = this._sanitizePriority(this._newItemPriority);
-        metadata.icon = this._newItemIcon;
+      metadata.priority = this._sanitizePriority(this._newItemPriority);
+      metadata.icon = this._newItemIcon;
     } else if (this._config.mode === 'shopping') {
-        if (this._newItemLink) metadata.link = this._sanitizeUrl(this._newItemLink);
-        if (this._newItemQuantity) metadata.quantity = this._sanitizeText(this._newItemQuantity);
-        if (this._newItemIcon) metadata.icon = this._newItemIcon;
+      if (this._newItemLink) metadata.link = this._sanitizeUrl(this._newItemLink);
+      if (this._newItemQuantity) metadata.quantity = this._sanitizeText(this._newItemQuantity);
+      if (this._newItemIcon) metadata.icon = this._newItemIcon;
     }
 
     const serviceData = { item: this._sanitizeText(this._newItemSummary.trim()), description: JSON.stringify(metadata) };
     if (this._newItemDueDate.trim()) { if (this._newItemDueTime.trim()) { serviceData.due_datetime = `${this._newItemDueDate} ${this._newItemDueTime}:00`; } else { serviceData.due_date = this._newItemDueDate; } }
     try { await this._hass.callService("todo", "add_item", serviceData, { entity_id: this._config.entity }); this._resetNewItemInputs(); } catch (err) { console.error('Error adding item:', err); this._error = `Failed to add item: ${err.message}`; } finally { this.fetchTodoItems(); }
   }
-  
+
   async _handleSaveEdit(task) {
     if (!this._editSummary.trim()) { this._error = "Item name cannot be empty"; return; }
     const originalEditedTaskId = this._editedTaskId; this._editedTaskId = null;
     const originalMetadata = task._cachedMetadata || {}; let metadata = { subtasks: originalMetadata.subtasks || [] };
     if (this._editDescription.trim()) metadata.description = this._sanitizeText(this._editDescription.trim());
-    
+
     // Config mode handling for metadata
     if (this._config.mode === 'tasks') {
-        metadata.priority = this._sanitizePriority(this._editPriority);
-        metadata.icon = this._editIcon;
+      metadata.priority = this._sanitizePriority(this._editPriority);
+      metadata.icon = this._editIcon;
     } else if (this._config.mode === 'shopping') {
-        if (this._editLink) metadata.link = this._sanitizeUrl(this._editLink);
-        if (this._editQuantity) metadata.quantity = this._sanitizeText(this._editQuantity);
-        if (this._editIcon) metadata.icon = this._editIcon;
+      if (this._editLink) metadata.link = this._sanitizeUrl(this._editLink);
+      if (this._editQuantity) metadata.quantity = this._sanitizeText(this._editQuantity);
+      if (this._editIcon) metadata.icon = this._editIcon;
     }
 
     const serviceData = { item: task.uid, rename: this._sanitizeText(this._editSummary.trim()), description: JSON.stringify(metadata) };
     if (this._editDueDate.trim()) { if (this._editDueTime.trim()) { serviceData.due_datetime = `${this._editDueDate} ${this._editDueTime}:00`; } else { serviceData.due_date = this._editDueDate; } } else { serviceData.due_date = null; }
     try { await this._hass.callService("todo", "update_item", serviceData, { entity_id: this._config.entity }); this._resetEditInputs(); } catch (err) { console.error('Error updating item:', err); this._error = `Failed to update item: ${err.message}`; this._editedTaskId = originalEditedTaskId; } finally { this.fetchTodoItems(); }
   }
-  
+
   async _handleDeleteItem(ev, task) {
     ev.stopPropagation(); const shouldDelete = this._config.confirm_delete ? confirm(`Are you sure you want to delete "${task.summary}"?`) : true; if (!shouldDelete) return;
     this._editedTaskId = null; this._expandedTaskId = null;
     try { await this._hass.callService("todo", "remove_item", { item: [task.uid] }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error deleting item:', err); this._error = `Failed to delete item: ${err.message}`; }
   }
-  
+
   async _handleClearCompleted() {
     const completedItems = this._tasks.filter(t => t.status === 'completed'); if (completedItems.length === 0) return;
     const shouldClear = confirm(`Are you sure you want to delete all ${completedItems.length} completed items?`); if (!shouldClear) return;
     const uidsToRemove = completedItems.map(t => t.uid);
     try { await this._hass.callService("todo", "remove_item", { item: uidsToRemove }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error clearing completed items:', err); this._error = `Failed to clear completed items: ${err.message}`; }
   }
-  
+
   _handleOpenLink(ev, link) { ev.stopPropagation(); const sanitized = this._sanitizeUrl(link); if (sanitized) { window.open(sanitized, '_blank', 'noopener,noreferrer'); } }
-  
+
   _toggleEditMode(taskUid) {
     if (this._editedTaskId === taskUid) { this._editedTaskId = null; this._resetEditInputs(); } else {
       const task = this._tasks.find(t => t.uid === taskUid);
@@ -375,27 +375,27 @@ class TodoListCard extends LitElement {
       }
     }
   }
-  
+
   _handleKeyDown(ev, action) { if (ev.key === 'Enter') { ev.preventDefault(); action(); } else if (ev.key === 'Escape') { ev.preventDefault(); if (this._isAddAreaOpen) { this._isAddAreaOpen = false; this._resetNewItemInputs(); } else if (this._editedTaskId) { this._editedTaskId = null; this._resetEditInputs(); } else if (this._expandedTaskId) { this._expandedTaskId = null; } } }
   _getDueDateStatus(dueDateStr) { if (!dueDateStr) return null; const today = new Date(); const dueDate = new Date(dueDateStr); const todayStr = today.toISOString().split('T')[0]; const dueStr = dueDateStr.split('T')[0]; if (dueStr < todayStr) return 'overdue'; if (dueStr === todayStr) return 'due-today'; return null; }
   _getPriorityInfo(priority) { const prio = parseInt(priority, 10); if (isNaN(prio)) return null; if (prio <= 1) return { text: 'Urgent', color: 'var(--error-color)' }; if (prio <= 4) return { text: 'High', color: 'var(--error-color)' }; if (prio <= 7) return { text: 'Medium', color: 'var(--warning-color)' }; return { text: 'Low', color: 'var(--success-color)' }; }
   _formatDueDate(dueDateStr) { if (!dueDateStr) return null; try { const date = new Date(dueDateStr); const now = new Date(); const hasTime = dueDateStr.includes('T') && !dueDateStr.match(/T00:00:00/); const pad = (num) => String(num).padStart(2, '0'); const day = date.getDate(); const month = new Intl.DateTimeFormat(this._hass.locale?.language || 'en', { month: 'short' }).format(date).toLowerCase(); let result = `${day}.${month}`; if (date.getFullYear() !== now.getFullYear()) { result += `.${date.getFullYear()}`; } if (hasTime) { const hours = pad(date.getHours()); const minutes = pad(date.getMinutes()); result += `, ${hours}:${minutes}`; } return result; } catch (e) { console.error('Date formatting error:', e); return dueDateStr; } }
-  
+
   _toggleFilter(type) {
     this._filters = { ...this._filters, [type]: !this._filters[type] };
     this._saveFilters();
   }
-  
+
   _toggleSearch() {
     this._isSearchOpen = !this._isSearchOpen;
     if (!this._isSearchOpen) {
-        this._searchQuery = '';
+      this._searchQuery = '';
     } else {
-        // Focus attempt after render
-        setTimeout(() => {
-            const field = this.shadowRoot.querySelector('#search-input');
-            if(field) field.focus();
-        }, 100);
+      // Focus attempt after render
+      setTimeout(() => {
+        const field = this.shadowRoot.querySelector('#search-input');
+        if (field) field.focus();
+      }, 100);
     }
   }
 
@@ -403,30 +403,30 @@ class TodoListCard extends LitElement {
     if (!this._hass || !this._config) return html``;
     const entityState = this._hass.states[this._config.entity];
     if (!entityState) { return html`<ha-card><div class="warning">Entity not found: ${this._config.entity}</div></ha-card>`; }
-    
+
     let allTasks = Array.isArray(this._tasks) ? this._tasks : [];
 
     // Filter Logic & Search Logic
     if (this._config.show_filter_menu || this._searchQuery) {
-        allTasks = allTasks.filter(task => {
-            // Search Filtering
-            if (this._searchQuery) {
-                if (!task.summary.toLowerCase().includes(this._searchQuery.toLowerCase())) {
-                    return false;
-                }
-            }
+      allTasks = allTasks.filter(task => {
+        // Search Filtering
+        if (this._searchQuery) {
+          if (!task.summary.toLowerCase().includes(this._searchQuery.toLowerCase())) {
+            return false;
+          }
+        }
 
-            // Status Filtering
-            const isCompleted = task.status === 'completed';
-            const overdueStatus = !isCompleted ? this._getDueDateStatus(task.due) : null;
-            const isOverdue = overdueStatus === 'overdue';
-            const isActive = !isCompleted && !isOverdue;
+        // Status Filtering
+        const isCompleted = task.status === 'completed';
+        const overdueStatus = !isCompleted ? this._getDueDateStatus(task.due) : null;
+        const isOverdue = overdueStatus === 'overdue';
+        const isActive = !isCompleted && !isOverdue;
 
-            if (isCompleted && !this._filters.completed) return false;
-            if (isOverdue && !this._filters.overdue) return false;
-            if (isActive && !this._filters.active) return false;
-            return true;
-        });
+        if (isCompleted && !this._filters.completed) return false;
+        if (isOverdue && !this._filters.overdue) return false;
+        if (isActive && !this._filters.active) return false;
+        return true;
+      });
     }
 
     const sortFn = (a, b) => {
@@ -437,7 +437,7 @@ class TodoListCard extends LitElement {
 
     const activeItems = allTasks.filter(t => t.status === 'needs_action').sort(sortFn);
     const completedItems = allTasks.filter(t => t.status === 'completed').sort(sortFn);
-    
+
     const isFrameless = this._config.card_background === 'none'; const headerPadding = isFrameless ? '6px 4px 12px 16px' : '6px 20px 12px 20px'; const contentPadding = isFrameless ? '0 4px 4px' : '0 12px 12px';
     let countText = this._config.mode === 'tasks' ? `${activeItems.length} tasks · ${completedItems.length} completed` : `${activeItems.length} items · ${completedItems.length} checked`;
     if (this._searchQuery) { countText = `${activeItems.length + completedItems.length} results found`; }
@@ -496,7 +496,7 @@ class TodoListCard extends LitElement {
                 @input="${(e) => this._searchQuery = e.target.value}"
                 iconTrailing
             >
-                <ha-icon slot="trailingIcon" icon="mdi:close" @click="${() => {this._searchQuery = ''; this._isSearchOpen = false;}}" style="cursor: pointer;"></ha-icon>
+                <ha-icon slot="trailingIcon" icon="mdi:close" @click="${() => { this._searchQuery = ''; this._isSearchOpen = false; }}" style="cursor: pointer;"></ha-icon>
             </ha-textfield>
         </div>
         ` : ''}
@@ -512,11 +512,11 @@ class TodoListCard extends LitElement {
       </ha-card>
     `;
   }
-  
+
   _renderAddForm() { if (this._config.mode === 'tasks') return this._renderAddTaskForm(); if (this._config.mode === 'shopping') return this._renderAddShoppingItemForm(); return html``; }
   _renderEditForm(item) { if (this._config.mode === 'tasks') return this._renderEditTaskForm(item); if (this._config.mode === 'shopping') return this._renderEditShoppingItemForm(item); return html``; }
   _renderItem(item) { if (this._config.mode === 'tasks') return this._renderTask(item); if (this._config.mode === 'shopping') return this._renderShoppingItem(item); return html``; }
-  
+
   _renderAddTaskForm() {
     return html`<div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}"><h3>New Task</h3><ha-textfield label="Title" .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}"></ha-textfield><ha-textfield label="Description (optional)" .value="${this._newItemDescription}" @input="${e => this._newItemDescription = e.target.value}"></ha-textfield><div class="row"><ha-textfield label="Priority" type="number" min="1" max="10" .value="${this._newItemPriority}" @input="${e => this._newItemPriority = e.target.value}"></ha-textfield><ha-textfield label="Due Date" type="date" .value="${this._newItemDueDate}" @input="${e => this._newItemDueDate = e.target.value}"></ha-textfield><ha-textfield label="Time (optional)" type="time" .value="${this._newItemDueTime}" @input="${e => this._newItemDueTime = e.target.value}"></ha-textfield></div><ha-icon-picker label="Icon" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker><div class="buttons"><mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">Cancel</mwc-button><mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button></div></div>`;
   }
@@ -559,7 +559,7 @@ class TodoListCard extends LitElement {
         </div>
     </div>`;
   }
-  
+
   _renderPriorityLabel(priority) {
     const priorityInfo = this._getPriorityInfo(priority); if (!priorityInfo) return '';
     return html`<span class="priority-label" style="background-color: ${priorityInfo.color};" title="Priority: ${priority}">${priorityInfo.text}</span>`;
@@ -593,7 +593,7 @@ class TodoListCard extends LitElement {
       </div>
     `;
   }
-  
+
   _renderTask(task) {
     const isCompleted = task.status === 'completed'; const textColor = isCompleted ? this._config.completed_text_color : this._config.text_color; const metadata = task._cachedMetadata ?? {}; const description = metadata.description || null; const priority = metadata.priority || DEFAULT_PRIORITY; const icon = metadata.icon || 'mdi:hammer'; const dueDate = task.due || null; const dueDateStatus = this._getDueDateStatus(dueDate);
     const subtasks = metadata.subtasks || []; const completedSubtasks = subtasks.filter(s => s.status === 'completed').length; const totalSubtasks = subtasks.length; const hasDescription = !!description; const hasDueDate = !isCompleted && !!dueDate;
@@ -663,7 +663,7 @@ class TodoListCard extends LitElement {
       </div>
     `;
   }
-  
+
   static get styles() {
     return css`
       :host {
@@ -771,7 +771,7 @@ class TodoListCardEditor extends LitElement {
   static get properties() {
     return {
       hass: { type: Object },
-      _config: { type: Object }, 
+      _config: { type: Object },
     };
   }
 
