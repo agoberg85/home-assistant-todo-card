@@ -1,0 +1,19 @@
+{
+  "name": "todo-card",
+  "version": "1.0.0",
+  "main": "todo-card.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "lit": "^3.3.2",
+    "rollup": "^4.57.1"
+  }
+}
