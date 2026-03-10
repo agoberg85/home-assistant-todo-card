@@ -74,10 +74,10 @@ class TodoListCard extends LitElement {
       completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR,
       show_priority: true,
       confirm_delete: true,
-      auto_complete_parent: false,
       show_filter_menu: true,
       show_search_button: true,
       show_clear_button: true,
+      quick_add: false,
     };
   }
 
@@ -223,9 +223,9 @@ class TodoListCard extends LitElement {
       sort_by: 'priority',
       sort_order: 'asc',
       auto_complete_parent: false,
-      show_filter_menu: true,
       show_search_button: true,
       show_clear_button: true,
+      quick_add: false,
       ...config
     };
     // Load persistent filters
@@ -311,7 +311,7 @@ class TodoListCard extends LitElement {
 
   async _handleAddItem() {
     if (!this._newItemSummary.trim()) { this._error = "Item name cannot be empty"; return; }
-    this._isAddAreaOpen = false; let metadata = {};
+    let metadata = {};
     if (this._newItemDescription.trim()) metadata.description = this._sanitizeText(this._newItemDescription.trim());
 
     // Config mode handling for metadata
@@ -326,7 +326,21 @@ class TodoListCard extends LitElement {
 
     const serviceData = { item: this._sanitizeText(this._newItemSummary.trim()), description: JSON.stringify(metadata) };
     if (this._newItemDueDate.trim()) { if (this._newItemDueTime.trim()) { serviceData.due_datetime = `${this._newItemDueDate} ${this._newItemDueTime}:00`; } else { serviceData.due_date = this._newItemDueDate; } }
-    try { await this._hass.callService("todo", "add_item", serviceData, { entity_id: this._config.entity }); this._resetNewItemInputs(); } catch (err) { console.error('Error adding item:', err); this._error = `Failed to add item: ${err.message}`; } finally { this.fetchTodoItems(); }
+    try { 
+      await this._hass.callService("todo", "add_item", serviceData, { entity_id: this._config.entity }); 
+      this._resetNewItemInputs(); 
+      if (this._config.quick_add) {
+        setTimeout(() => {
+          const addArea = this.shadowRoot.querySelector('.add-edit-area');
+          if (addArea) {
+            const titleInput = addArea.querySelector('ha-textfield');
+            if (titleInput) titleInput.focus();
+          }
+        }, 50);
+      } else {
+        this._isAddAreaOpen = false;
+      }
+    } catch (err) { console.error('Error adding item:', err); this._error = `Failed to add item: ${err.message}`; } finally { this.fetchTodoItems(); }
   }
 
   async _handleSaveEdit(task) {
@@ -483,7 +497,7 @@ class TodoListCard extends LitElement {
                 ` : ''}
             </div>
             ` : ''}
-            <ha-icon-button class="add-button" @click="${() => { this._isAddAreaOpen = !this._isAddAreaOpen; this._editedTaskId = null; this._resetEditInputs(); }}"><ha-icon icon="mdi:plus"></ha-icon></ha-icon-button>
+            <ha-icon-button class="add-button" @click="${() => { this._isAddAreaOpen = !this._isAddAreaOpen; this._editedTaskId = null; this._resetEditInputs(); }}"><ha-icon icon="${this._isAddAreaOpen ? 'mdi:minus' : 'mdi:plus'}"></ha-icon></ha-icon-button>
           </div>
         </div>
         
@@ -518,12 +532,25 @@ class TodoListCard extends LitElement {
   _renderItem(item) { if (this._config.mode === 'tasks') return this._renderTask(item); if (this._config.mode === 'shopping') return this._renderShoppingItem(item); return html``; }
 
   _renderAddTaskForm() {
+    if (this._config.quick_add) {
+      return html`<div class="add-edit-area rapid-add" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
+          <ha-textfield label="Add new task..." .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}"></ha-textfield>
+          <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button>
+      </div>`;
+    }
     return html`<div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}"><h3>New Task</h3><ha-textfield label="Title" .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}"></ha-textfield><ha-textfield label="Description (optional)" .value="${this._newItemDescription}" @input="${e => this._newItemDescription = e.target.value}"></ha-textfield><div class="row"><ha-textfield label="Priority" type="number" min="1" max="10" .value="${this._newItemPriority}" @input="${e => this._newItemPriority = e.target.value}"></ha-textfield><ha-textfield label="Due Date" type="date" .value="${this._newItemDueDate}" @input="${e => this._newItemDueDate = e.target.value}"></ha-textfield><ha-textfield label="Time (optional)" type="time" .value="${this._newItemDueTime}" @input="${e => this._newItemDueTime = e.target.value}"></ha-textfield></div><ha-icon-picker label="Icon" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker><div class="buttons"><mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">Cancel</mwc-button><mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button></div></div>`;
   }
   _renderEditTaskForm(task) {
     return html`<div class="add-edit-area edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleSaveEdit(task))}"><h3>Edit Task</h3><ha-textfield label="Title" .value="${this._editSummary}" @input="${e => this._editSummary = e.target.value}"></ha-textfield><ha-textfield label="Description (optional)" .value="${this._editDescription}" @input="${e => this._editDescription = e.target.value}"></ha-textfield><div class="row"><ha-textfield label="Priority" type="number" min="1" max="10" .value="${this._editPriority}" @input="${e => this._editPriority = e.target.value}"></ha-textfield><ha-textfield label="Due Date" type="date" .value="${this._editDueDate}" @input="${e => this._editDueDate = e.target.value}"></ha-textfield><ha-textfield label="Time (optional)" type="time" .value="${this._editDueTime}" @input="${e => this._editDueTime = e.target.value}"></ha-textfield></div><ha-icon-picker label="Icon" .value="${this._editIcon}" @value-changed="${e => this._editIcon = e.detail.value}"></ha-icon-picker><div class="buttons"><mwc-button @click="${(e) => this._handleDeleteItem(e, task)}" class="btn btn-delete">Delete</mwc-button><div style="flex-grow: 1;"></div><mwc-button @click="${() => { this._editedTaskId = null; this._resetEditInputs(); }}" class="btn btn-cancel">Cancel</mwc-button><mwc-button @click="${() => this._handleSaveEdit(task)}" raised class="btn btn-add">Save</mwc-button></div></div>`;
   }
   _renderAddShoppingItemForm() {
+    if (this._config.quick_add) {
+      return html`
+      <div class="add-edit-area rapid-add" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
+          <ha-textfield label="Add item..." .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}"></ha-textfield>
+          <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button>
+      </div>`;
+    }
     return html`
     <div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
         <h3>New Shopping Item</h3>
@@ -710,6 +737,9 @@ class TodoListCard extends LitElement {
       .checkbox { margin-left: 8px; margin-right: 8px; border-radius: 50%; padding: 4px; transition: background-color 0.2s; }
       .checkbox:hover { background-color: rgba(255, 255, 255, 0.1); }
       .add-edit-area { border-radius: var(--ha-card-border-radius, 12px); margin-bottom: 12px; animation: slide-down 0.3s ease-out; position: relative; z-index: 0; padding: 16px; }
+      .add-edit-area.rapid-add { display: flex; flex-direction: row; align-items: center; padding: 8px 16px; justify-content: space-between; gap: 8px; }
+      .add-edit-area.rapid-add ha-textfield { flex-grow: 1; margin-bottom: 0; }
+      .add-edit-area.rapid-add .btn-add { margin-top: 0; flex-shrink: 0; }
       .edit-area { margin-top: -56px; padding-top: 66px; }
       .add-edit-area.edit-area { animation: slide-down-subtle 0.3s ease-out; }
       .add-edit-area h3 { margin: 0 0 16px; }
@@ -823,6 +853,7 @@ class TodoListCardEditor extends LitElement {
         <ha-formfield label="Show Filter Menu"><ha-switch .checked=${this._config.show_filter_menu !== false} @change=${this._showFilterMenuChanged}></ha-switch></ha-formfield>
         <ha-formfield label="Show Search Button"><ha-switch .checked=${this._config.show_search_button !== false} @change=${this._showSearchButtonChanged}></ha-switch></ha-formfield>
         <ha-formfield label="Show Clear Button"><ha-switch .checked=${this._config.show_clear_button !== false} @change=${this._showClearButtonChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="Enable Quick Add (Rapid Entry)"><ha-switch .checked=${this._config.quick_add === true} @change=${this._quickAddChanged}></ha-switch></ha-formfield>
       </div>
     `;
   }
@@ -843,6 +874,7 @@ class TodoListCardEditor extends LitElement {
   _showFilterMenuChanged(ev) { this.configChanged({ ...this._config, show_filter_menu: ev.target.checked }); }
   _showSearchButtonChanged(ev) { this.configChanged({ ...this._config, show_search_button: ev.target.checked }); }
   _showClearButtonChanged(ev) { this.configChanged({ ...this._config, show_clear_button: ev.target.checked }); }
+  _quickAddChanged(ev) { this.configChanged({ ...this._config, quick_add: ev.target.checked }); }
   static get styles() {
     return css`.card-config { display: flex; flex-direction: column; gap: 16px; padding: 16px 0; } .row { display: flex; gap: 16px; } .row > * { flex: 1; } ha-formfield { display: flex; align-items: center; padding: 8px 0; }`;
   }

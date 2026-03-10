@@ -61,4 +61,5 @@ sort_order: asc
 show_priority: true
 auto_complete_parent: false
 confirm_delete: true
+quick_add: false
 ```
