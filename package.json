@@ -1,6 +1,6 @@
 {
   "name": "todo-card",
-  "version": "v1.6.0",
+  "version": "v1.7.0",
   "main": "todo-card.js",
   "scripts": {
     "build": "rollup -c",
@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "A customizable Home Assistant todo card with subtasks, translations, task priorities, and shopping list support.",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",

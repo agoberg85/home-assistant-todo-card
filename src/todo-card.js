@@ -5,14 +5,267 @@ import {
 } from 'lit';
 
 // Class-level constants for re-use
-const DEFAULT_PRIORITY = '5';
+const DEFAULT_PRIORITY = 'medium';
 const DEFAULT_ICON = 'mdi:checkbox-blank-outline';
+const DEFAULT_TASK_ICON = 'mdi:hammer';
 const DEFAULT_CARD_BACKGROUND = 'var(--ha-card-background)';
 const DEFAULT_CARD_COLOR = 'var(--ha-card-background)';
 const DEFAULT_COMPLETED_COLOR = 'var(--success-color)';
 const DEFAULT_ICON_BACKGROUND = 'rgba(128, 128, 128, 0.2)';
 const DEFAULT_TEXT_COLOR = 'var(--text-primary-color)';
 const DEFAULT_COMPLETED_TEXT_COLOR = 'var(--text-accent-color)';
+const DEFAULT_LANGUAGE = 'auto';
+const PRIORITY_OPTIONS = [
+  { value: 'urgent', labelKey: 'priorityUrgent', color: 'var(--error-color)', rank: 0 },
+  { value: 'high', labelKey: 'priorityHigh', color: 'var(--error-color)', rank: 1 },
+  { value: 'medium', labelKey: 'priorityMedium', color: 'var(--warning-color)', rank: 2 },
+  { value: 'low', labelKey: 'priorityLow', color: 'var(--success-color)', rank: 3 },
+];
+const PRIORITY_INFO = Object.fromEntries(PRIORITY_OPTIONS.map(option => [option.value, option]));
+const LEGACY_PRIORITY_LABELS = {
+  '1': 'urgent',
+  '2': 'high',
+  '3': 'high',
+  '4': 'high',
+  '5': 'medium',
+  '6': 'medium',
+  '7': 'medium',
+  '8': 'low',
+  '9': 'low',
+  '10': 'low',
+};
+const FALLBACK_TRANSLATIONS = {
+  active: 'Active',
+  add: 'Add',
+  addItem: 'Add item...',
+  addNewTask: 'Add new task...',
+  addSubItem: 'Add new sub-item',
+  ascending: 'Ascending',
+  autoCompleteParentTask: 'Auto-complete parent task',
+  cancel: 'Cancel',
+  cardBackgroundCss: 'Card Background (CSS)',
+  cardColorCss: 'Card Color (CSS)',
+  clearCompletedItems: 'Clear Completed Items',
+  completed: 'Completed',
+  completedColorCss: 'Completed Color (CSS)',
+  completedItemsChecked: '{active} items · {completed} checked',
+  completedTasks: '{active} tasks · {completed} completed',
+  completedTextColorCss: 'Completed Text Color (CSS)',
+  confirmBeforeDelete: 'Confirm Before Delete',
+  confirmClearCompleted: 'Are you sure you want to delete all {count} completed items?',
+  confirmDeleteItem: 'Are you sure you want to delete "{item}"?',
+  descriptionOptional: 'Description (optional)',
+  descending: 'Descending',
+  dueDate: 'Due Date',
+  editDetails: 'Edit Details',
+  editItem: 'Edit Item',
+  editTask: 'Edit Task',
+  enableQuickAdd: 'Enable Quick Add (Rapid Entry)',
+  entity: 'Entity',
+  failedToAddItem: 'Failed to add item: {message}',
+  failedToClearCompleted: 'Failed to clear completed items: {message}',
+  failedToLoadItems: 'Failed to load items: {message}',
+  failedToUpdateItem: 'Failed to update item: {message}',
+  failedToUpdateSubtasks: 'Failed to update sub-tasks: {message}',
+  high: 'High',
+  icon: 'Icon',
+  iconBackgroundCss: 'Icon Background (CSS)',
+  itemName: 'Item Name',
+  itemNameCannotBeEmpty: 'Item name cannot be empty',
+  language: 'Language',
+  languageAuto: 'Auto (Home Assistant)',
+  languageDe: 'German',
+  languageEn: 'English',
+  languageNo: 'Norwegian',
+  linkOptional: 'Link (optional)',
+  loading: 'Loading...',
+  low: 'Low',
+  mode: 'Mode',
+  newShoppingItem: 'New Shopping Item',
+  newTask: 'New Task',
+  noItems: 'No items',
+  overdue: 'Overdue',
+  priority: 'Priority',
+  priorityHigh: 'High',
+  priorityLow: 'Low',
+  priorityMedium: 'Medium',
+  priorityUrgent: 'Urgent',
+  qty: 'Qty',
+  resultsFound: '{count} results found',
+  save: 'Save',
+  searchItems: 'Search items...',
+  shopping: 'Shopping',
+  showClearButton: 'Show Clear Button',
+  showFilterMenu: 'Show Filter Menu',
+  showPriority: 'Show Priority',
+  showSearchButton: 'Show Search Button',
+  sortBy: 'Sort By',
+  sortOrder: 'Sort Order',
+  sortPriorityTitle: 'Priority: {priority}',
+  tasks: 'Tasks',
+  textColorCss: 'Text Color (CSS)',
+  timeOptional: 'Time (optional)',
+  title: 'Title',
+  useAnyCssBackground: "Use any CSS background. Set to 'none' for no padding.",
+  defaultTaskIcon: 'Default Task Icon',
+  delete: 'Delete',
+};
+const BUILTIN_TRANSLATIONS = {
+  en: FALLBACK_TRANSLATIONS,
+  no: {
+    active: 'Aktive',
+    add: 'Legg til',
+    addItem: 'Legg til vare...',
+    addNewTask: 'Legg til ny oppgave...',
+    addSubItem: 'Legg til deloppgave',
+    ascending: 'Stigende',
+    autoCompleteParentTask: 'Fullfor foreldreoppgave automatisk',
+    cancel: 'Avbryt',
+    cardBackgroundCss: 'Kortbakgrunn (CSS)',
+    cardColorCss: 'Kortfarge (CSS)',
+    clearCompletedItems: 'Slett fullforte elementer',
+    completed: 'Fullfort',
+    completedColorCss: 'Farge for fullfort (CSS)',
+    completedItemsChecked: '{active} varer · {completed} avhukede',
+    completedTasks: '{active} oppgaver · {completed} fullfort',
+    completedTextColorCss: 'Tekstfarge for fullfort (CSS)',
+    confirmBeforeDelete: 'Bekreft for sletting',
+    confirmClearCompleted: 'Er du sikker pa at du vil slette alle {count} fullforte elementer?',
+    confirmDeleteItem: 'Er du sikker pa at du vil slette "{item}"?',
+    defaultTaskIcon: 'Standardikon for oppgaver',
+    delete: 'Slett',
+    descriptionOptional: 'Beskrivelse (valgfritt)',
+    descending: 'Synkende',
+    dueDate: 'Forfallsdato',
+    editDetails: 'Rediger detaljer',
+    editItem: 'Rediger vare',
+    editTask: 'Rediger oppgave',
+    enableQuickAdd: 'Aktiver hurtiglegging',
+    entity: 'Entitet',
+    failedToAddItem: 'Kunne ikke legge til element: {message}',
+    failedToClearCompleted: 'Kunne ikke slette fullforte elementer: {message}',
+    failedToLoadItems: 'Kunne ikke laste elementer: {message}',
+    failedToUpdateItem: 'Kunne ikke oppdatere element: {message}',
+    failedToUpdateSubtasks: 'Kunne ikke oppdatere deloppgaver: {message}',
+    icon: 'Ikon',
+    iconBackgroundCss: 'Ikonbakgrunn (CSS)',
+    itemName: 'Navn',
+    itemNameCannotBeEmpty: 'Navnet kan ikke vare tomt',
+    language: 'Sprak',
+    languageAuto: 'Automatisk (Home Assistant)',
+    languageDe: 'Tysk',
+    languageEn: 'Engelsk',
+    languageNo: 'Norsk',
+    linkOptional: 'Lenke (valgfritt)',
+    loading: 'Laster...',
+    mode: 'Modus',
+    newShoppingItem: 'Ny handlevare',
+    newTask: 'Ny oppgave',
+    noItems: 'Ingen elementer',
+    overdue: 'Forfalt',
+    priority: 'Prioritet',
+    priorityHigh: 'Hoy',
+    priorityLow: 'Lav',
+    priorityMedium: 'Medium',
+    priorityUrgent: 'Haster',
+    qty: 'Antall',
+    resultsFound: '{count} treff funnet',
+    save: 'Lagre',
+    searchItems: 'Sok i elementer...',
+    shopping: 'Handling',
+    showClearButton: 'Vis knapp for sletting',
+    showFilterMenu: 'Vis filtermeny',
+    showPriority: 'Vis prioritet',
+    showSearchButton: 'Vis sokeknapp',
+    sortBy: 'Sorter etter',
+    sortOrder: 'Sorteringsrekkefolge',
+    sortPriorityTitle: 'Prioritet: {priority}',
+    tasks: 'Oppgaver',
+    textColorCss: 'Tekstfarge (CSS)',
+    timeOptional: 'Tid (valgfritt)',
+    title: 'Tittel',
+    useAnyCssBackground: "Bruk valgfri CSS-bakgrunn. Sett til 'none' for ingen padding."
+  },
+  de: {
+    active: 'Aktiv',
+    add: 'Hinzufugen',
+    addItem: 'Element hinzufugen...',
+    addNewTask: 'Neue Aufgabe hinzufugen...',
+    addSubItem: 'Teilaufgabe hinzufugen',
+    ascending: 'Aufsteigend',
+    autoCompleteParentTask: 'Ubergeordnete Aufgabe automatisch abschliessen',
+    cancel: 'Abbrechen',
+    cardBackgroundCss: 'Kartenhintergrund (CSS)',
+    cardColorCss: 'Kartenfarbe (CSS)',
+    clearCompletedItems: 'Erledigte Elemente loschen',
+    completed: 'Erledigt',
+    completedColorCss: 'Farbe fur erledigt (CSS)',
+    completedItemsChecked: '{active} Elemente · {completed} abgehakt',
+    completedTasks: '{active} Aufgaben · {completed} erledigt',
+    completedTextColorCss: 'Textfarbe fur erledigt (CSS)',
+    confirmBeforeDelete: 'Loschen bestatigen',
+    confirmClearCompleted: 'Mochtest du wirklich alle {count} erledigten Elemente loschen?',
+    confirmDeleteItem: 'Mochtest du "{item}" wirklich loschen?',
+    defaultTaskIcon: 'Standard-Aufgabensymbol',
+    delete: 'Loschen',
+    descriptionOptional: 'Beschreibung (optional)',
+    descending: 'Absteigend',
+    dueDate: 'Falligkeitsdatum',
+    editDetails: 'Details bearbeiten',
+    editItem: 'Element bearbeiten',
+    editTask: 'Aufgabe bearbeiten',
+    enableQuickAdd: 'Schnelles Hinzufugen aktivieren',
+    entity: 'Entitat',
+    failedToAddItem: 'Element konnte nicht hinzugefugt werden: {message}',
+    failedToClearCompleted: 'Erledigte Elemente konnten nicht geloscht werden: {message}',
+    failedToLoadItems: 'Elemente konnten nicht geladen werden: {message}',
+    failedToUpdateItem: 'Element konnte nicht aktualisiert werden: {message}',
+    failedToUpdateSubtasks: 'Teilaufgaben konnten nicht aktualisiert werden: {message}',
+    icon: 'Symbol',
+    iconBackgroundCss: 'Symbolhintergrund (CSS)',
+    itemName: 'Name',
+    itemNameCannotBeEmpty: 'Der Name darf nicht leer sein',
+    language: 'Sprache',
+    languageAuto: 'Automatisch (Home Assistant)',
+    languageDe: 'Deutsch',
+    languageEn: 'Englisch',
+    languageNo: 'Norwegisch',
+    linkOptional: 'Link (optional)',
+    loading: 'Ladt...',
+    mode: 'Modus',
+    newShoppingItem: 'Neues Einkaufs-Element',
+    newTask: 'Neue Aufgabe',
+    noItems: 'Keine Elemente',
+    overdue: 'Uberfallig',
+    priority: 'Prioritat',
+    priorityHigh: 'Hoch',
+    priorityLow: 'Niedrig',
+    priorityMedium: 'Mittel',
+    priorityUrgent: 'Dringend',
+    qty: 'Menge',
+    resultsFound: '{count} Treffer gefunden',
+    save: 'Speichern',
+    searchItems: 'Elemente durchsuchen...',
+    shopping: 'Einkauf',
+    showClearButton: 'Schaltflache zum Loschen anzeigen',
+    showFilterMenu: 'Filtermenu anzeigen',
+    showPriority: 'Prioritat anzeigen',
+    showSearchButton: 'Suchschaltflache anzeigen',
+    sortBy: 'Sortieren nach',
+    sortOrder: 'Sortierreihenfolge',
+    sortPriorityTitle: 'Prioritat: {priority}',
+    tasks: 'Aufgaben',
+    textColorCss: 'Textfarbe (CSS)',
+    timeOptional: 'Zeit (optional)',
+    title: 'Titel',
+    useAnyCssBackground: "Beliebigen CSS-Hintergrund verwenden. Fur keinen Innenabstand auf 'none' setzen."
+  }
+};
+const TRANSLATIONS_PATH = new URL('./translations/', import.meta.url);
+
+function interpolateTemplate(template, values = {}) {
+  return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
 
 class TodoListCard extends LitElement {
   static get properties() {
@@ -52,6 +305,8 @@ class TodoListCard extends LitElement {
 
       _isLoading: { state: true },
       _error: { state: true },
+      _translations: { state: true },
+      _activeLanguage: { state: true },
     };
   }
 
@@ -72,6 +327,8 @@ class TodoListCard extends LitElement {
       icon_background: DEFAULT_ICON_BACKGROUND,
       text_color: DEFAULT_TEXT_COLOR,
       completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR,
+      default_task_icon: DEFAULT_TASK_ICON,
+      language: DEFAULT_LANGUAGE,
       show_priority: true,
       confirm_delete: true,
       show_filter_menu: true,
@@ -98,7 +355,7 @@ class TodoListCard extends LitElement {
       }
     } catch (err) {
       console.error('Error updating task metadata:', err);
-      this._error = `Failed to update sub-tasks: ${err.message}`;
+      this._error = this._t('failedToUpdateSubtasks', { message: err.message });
       this.fetchTodoItems();
     }
   }
@@ -171,6 +428,8 @@ class TodoListCard extends LitElement {
     this._isFilterOpen = false;
     this._isSearchOpen = false;
     this._searchQuery = '';
+    this._translations = FALLBACK_TRANSLATIONS;
+    this._activeLanguage = 'en';
     // Default filters (will be overwritten by loadFilters if saved data exists)
     this._filters = { active: true, overdue: true, completed: true };
     this._resetNewItemInputs();
@@ -201,11 +460,11 @@ class TodoListCard extends LitElement {
   }
 
   _resetNewItemInputs() {
-    this._newItemSummary = ''; this._newItemDescription = ''; this._newItemPriority = DEFAULT_PRIORITY; this._newItemIcon = DEFAULT_ICON; this._newItemLink = ''; this._newItemQuantity = ''; this._newItemDueDate = ''; this._newItemDueTime = '';
+    this._newItemSummary = ''; this._newItemDescription = ''; this._newItemPriority = DEFAULT_PRIORITY; this._newItemIcon = this._getDefaultItemIcon(); this._newItemLink = ''; this._newItemQuantity = ''; this._newItemDueDate = ''; this._newItemDueTime = '';
   }
 
   _resetEditInputs() {
-    this._editSummary = ''; this._editDescription = ''; this._editPriority = DEFAULT_PRIORITY; this._editIcon = DEFAULT_ICON; this._editLink = ''; this._editQuantity = ''; this._editDueDate = ''; this._editDueTime = '';
+    this._editSummary = ''; this._editDescription = ''; this._editPriority = DEFAULT_PRIORITY; this._editIcon = this._getDefaultItemIcon(); this._editLink = ''; this._editQuantity = ''; this._editDueDate = ''; this._editDueTime = '';
   }
 
   setConfig(config) {
@@ -218,6 +477,8 @@ class TodoListCard extends LitElement {
       icon_background: DEFAULT_ICON_BACKGROUND,
       text_color: DEFAULT_TEXT_COLOR,
       completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR,
+      default_task_icon: DEFAULT_TASK_ICON,
+      language: DEFAULT_LANGUAGE,
       show_priority: true,
       confirm_delete: true,
       sort_by: 'priority',
@@ -228,6 +489,7 @@ class TodoListCard extends LitElement {
       quick_add: false,
       ...config
     };
+    this._loadTranslations();
     // Load persistent filters
     this._loadFilters();
   }
@@ -255,12 +517,59 @@ class TodoListCard extends LitElement {
   set hass(hass) {
     const oldHass = this._hass;
     this._hass = hass;
+    const nextLanguage = this._getResolvedLanguage();
+    if (nextLanguage !== this._activeLanguage) {
+      this._loadTranslations();
+    }
     if (!this._config?.entity || !oldHass) { this.fetchTodoItems(); return; }
     const oldEntity = oldHass.states[this._config.entity];
     const newEntity = hass.states[this._config.entity];
     if (!oldEntity || oldEntity.last_updated !== newEntity?.last_updated || oldEntity.attributes?.items !== newEntity?.attributes?.items) {
       this.fetchTodoItems();
     }
+  }
+
+  _getDefaultTaskIcon() {
+    return this._config?.default_task_icon || DEFAULT_TASK_ICON;
+  }
+
+  _getDefaultItemIcon(mode = this._config?.mode) {
+    return mode === 'tasks' ? this._getDefaultTaskIcon() : DEFAULT_ICON;
+  }
+
+  _getResolvedLanguage() {
+    const configuredLanguage = this._config?.language || DEFAULT_LANGUAGE;
+    if (configuredLanguage !== DEFAULT_LANGUAGE) {
+      return configuredLanguage;
+    }
+    const hassLanguage = this._hass?.locale?.language || 'en';
+    if (hassLanguage.startsWith('de')) return 'de';
+    if (hassLanguage.startsWith('no') || hassLanguage.startsWith('nb') || hassLanguage.startsWith('nn')) return 'no';
+    return 'en';
+  }
+
+  async _loadTranslations() {
+    const nextLanguage = this._getResolvedLanguage();
+    this._activeLanguage = nextLanguage;
+    const builtinTranslations = BUILTIN_TRANSLATIONS[nextLanguage] || FALLBACK_TRANSLATIONS;
+    if (nextLanguage === 'en') {
+      this._translations = builtinTranslations;
+      return;
+    }
+    try {
+      const response = await fetch(new URL(`${nextLanguage}.json`, TRANSLATIONS_PATH));
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const translations = await response.json();
+      this._translations = { ...builtinTranslations, ...translations };
+    } catch (err) {
+      this._translations = builtinTranslations;
+    }
+  }
+
+  _t(key, values) {
+    return interpolateTemplate(this._translations?.[key] || FALLBACK_TRANSLATIONS[key] || key, values);
   }
 
   async fetchTodoItems() {
@@ -285,7 +594,7 @@ class TodoListCard extends LitElement {
       this._tasks = (items.items || []).map(task => ({ ...task, _cachedMetadata: this._parseTaskMetadata(task.description) }));
     } catch (err) {
       console.error('Error fetching todo items:', err);
-      this._error = `Failed to load items: ${err.message}`;
+      this._error = this._t('failedToLoadItems', { message: err.message });
     } finally {
       this._isLoading = false;
     }
@@ -294,23 +603,33 @@ class TodoListCard extends LitElement {
   _parseTaskMetadata(desc) {
     try {
       const data = JSON.parse(desc || '{}');
-      return { description: this._sanitizeText(data.description ?? ''), priority: this._sanitizePriority(data.priority ?? DEFAULT_PRIORITY), icon: typeof data.icon === 'string' ? data.icon : DEFAULT_ICON, link: this._sanitizeUrl(data.link ?? ''), quantity: this._sanitizeText(data.quantity ?? ''), subtasks: Array.isArray(data.subtasks) ? data.subtasks : [] };
+      return { description: this._sanitizeText(data.description ?? ''), priority: this._sanitizePriority(data.priority ?? DEFAULT_PRIORITY), icon: typeof data.icon === 'string' ? data.icon : this._getDefaultItemIcon(), link: this._sanitizeUrl(data.link ?? ''), quantity: this._sanitizeText(data.quantity ?? ''), subtasks: Array.isArray(data.subtasks) ? data.subtasks : [] };
     } catch {
-      return { description: '', priority: DEFAULT_PRIORITY, icon: DEFAULT_ICON, link: '', quantity: '', subtasks: [] };
+      return { description: '', priority: DEFAULT_PRIORITY, icon: this._getDefaultItemIcon(), link: '', quantity: '', subtasks: [] };
     }
   }
 
-  _sanitizePriority(val) { const num = parseInt(val); return isNaN(num) ? DEFAULT_PRIORITY : Math.max(1, Math.min(10, num)).toString(); }
+  _sanitizePriority(val) {
+    const normalized = String(val ?? '').toLowerCase();
+    if (normalized in PRIORITY_INFO) return normalized;
+    const num = parseInt(val, 10);
+    if (isNaN(num)) return DEFAULT_PRIORITY;
+    return LEGACY_PRIORITY_LABELS[Math.max(1, Math.min(10, num)).toString()] || DEFAULT_PRIORITY;
+  }
+
+  _getPriorityRank(priority) {
+    return PRIORITY_INFO[this._sanitizePriority(priority)]?.rank ?? PRIORITY_INFO[DEFAULT_PRIORITY].rank;
+  }
   _sanitizeText(txt) { return typeof txt === 'string' ? txt.replace(/[<>"']/g, '') : ''; }
   _sanitizeUrl(url) { try { const parsed = new URL(url.startsWith('http') ? url : `https://${url}`); if (!['http:', 'https:'].includes(parsed.protocol)) { return ''; } return parsed.href; } catch { return ''; } }
 
   async _handleStatusUpdate(ev, task) {
     ev.stopPropagation();
-    try { await this._hass.callService("todo", "update_item", { item: task.uid, status: task.status === "needs_action" ? "completed" : "needs_action" }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error updating status:', err); this._error = `Failed to update item: ${err.message}`; this.fetchTodoItems(); }
+    try { await this._hass.callService("todo", "update_item", { item: task.uid, status: task.status === "needs_action" ? "completed" : "needs_action" }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error updating status:', err); this._error = this._t('failedToUpdateItem', { message: err.message }); this.fetchTodoItems(); }
   }
 
   async _handleAddItem() {
-    if (!this._newItemSummary.trim()) { this._error = "Item name cannot be empty"; return; }
+    if (!this._newItemSummary.trim()) { this._error = this._t('itemNameCannotBeEmpty'); return; }
     let metadata = {};
     if (this._newItemDescription.trim()) metadata.description = this._sanitizeText(this._newItemDescription.trim());
 
@@ -340,11 +659,11 @@ class TodoListCard extends LitElement {
       } else {
         this._isAddAreaOpen = false;
       }
-    } catch (err) { console.error('Error adding item:', err); this._error = `Failed to add item: ${err.message}`; } finally { this.fetchTodoItems(); }
+    } catch (err) { console.error('Error adding item:', err); this._error = this._t('failedToAddItem', { message: err.message }); } finally { this.fetchTodoItems(); }
   }
 
   async _handleSaveEdit(task) {
-    if (!this._editSummary.trim()) { this._error = "Item name cannot be empty"; return; }
+    if (!this._editSummary.trim()) { this._error = this._t('itemNameCannotBeEmpty'); return; }
     const originalEditedTaskId = this._editedTaskId; this._editedTaskId = null;
     const originalMetadata = task._cachedMetadata || {}; let metadata = { subtasks: originalMetadata.subtasks || [] };
     if (this._editDescription.trim()) metadata.description = this._sanitizeText(this._editDescription.trim());
@@ -361,20 +680,20 @@ class TodoListCard extends LitElement {
 
     const serviceData = { item: task.uid, rename: this._sanitizeText(this._editSummary.trim()), description: JSON.stringify(metadata) };
     if (this._editDueDate.trim()) { if (this._editDueTime.trim()) { serviceData.due_datetime = `${this._editDueDate} ${this._editDueTime}:00`; } else { serviceData.due_date = this._editDueDate; } } else { serviceData.due_date = null; }
-    try { await this._hass.callService("todo", "update_item", serviceData, { entity_id: this._config.entity }); this._resetEditInputs(); } catch (err) { console.error('Error updating item:', err); this._error = `Failed to update item: ${err.message}`; this._editedTaskId = originalEditedTaskId; } finally { this.fetchTodoItems(); }
+    try { await this._hass.callService("todo", "update_item", serviceData, { entity_id: this._config.entity }); this._resetEditInputs(); } catch (err) { console.error('Error updating item:', err); this._error = this._t('failedToUpdateItem', { message: err.message }); this._editedTaskId = originalEditedTaskId; } finally { this.fetchTodoItems(); }
   }
 
   async _handleDeleteItem(ev, task) {
-    ev.stopPropagation(); const shouldDelete = this._config.confirm_delete ? confirm(`Are you sure you want to delete "${task.summary}"?`) : true; if (!shouldDelete) return;
+    ev.stopPropagation(); const shouldDelete = this._config.confirm_delete ? confirm(this._t('confirmDeleteItem', { item: task.summary })) : true; if (!shouldDelete) return;
     this._editedTaskId = null; this._expandedTaskId = null;
     try { await this._hass.callService("todo", "remove_item", { item: [task.uid] }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error deleting item:', err); this._error = `Failed to delete item: ${err.message}`; }
   }
 
   async _handleClearCompleted() {
     const completedItems = this._tasks.filter(t => t.status === 'completed'); if (completedItems.length === 0) return;
-    const shouldClear = confirm(`Are you sure you want to delete all ${completedItems.length} completed items?`); if (!shouldClear) return;
+    const shouldClear = confirm(this._t('confirmClearCompleted', { count: completedItems.length })); if (!shouldClear) return;
     const uidsToRemove = completedItems.map(t => t.uid);
-    try { await this._hass.callService("todo", "remove_item", { item: uidsToRemove }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error clearing completed items:', err); this._error = `Failed to clear completed items: ${err.message}`; }
+    try { await this._hass.callService("todo", "remove_item", { item: uidsToRemove }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error clearing completed items:', err); this._error = this._t('failedToClearCompleted', { message: err.message }); }
   }
 
   _handleOpenLink(ev, link) { ev.stopPropagation(); const sanitized = this._sanitizeUrl(link); if (sanitized) { window.open(sanitized, '_blank', 'noopener,noreferrer'); } }
@@ -384,7 +703,7 @@ class TodoListCard extends LitElement {
       const task = this._tasks.find(t => t.uid === taskUid);
       if (task) {
         this._editedTaskId = taskUid; this._expandedTaskId = null; this._editSummary = task.summary; const metadata = task._cachedMetadata || {};
-        this._editDescription = metadata.description ?? ''; this._editPriority = metadata.priority ?? DEFAULT_PRIORITY; this._editIcon = metadata.icon ?? DEFAULT_ICON; this._editLink = metadata.link ?? ''; this._editQuantity = metadata.quantity ?? '';
+        this._editDescription = metadata.description ?? ''; this._editPriority = metadata.priority ?? DEFAULT_PRIORITY; this._editIcon = metadata.icon ?? this._getDefaultItemIcon(); this._editLink = metadata.link ?? ''; this._editQuantity = metadata.quantity ?? '';
         if (task.due) { try { const date = new Date(task.due); this._editDueDate = date.toISOString().split('T')[0]; const timeStr = task.due.split('T')[1]; if (timeStr && !timeStr.startsWith('00:00:00')) { const hours = String(date.getHours()).padStart(2, '0'); const minutes = String(date.getMinutes()).padStart(2, '0'); this._editDueTime = `${hours}:${minutes}`; } else { this._editDueTime = ''; } } catch (e) { console.error('Error parsing due date:', e); this._editDueDate = ''; this._editDueTime = ''; } } else { this._editDueDate = ''; this._editDueTime = ''; }
       }
     }
@@ -392,7 +711,11 @@ class TodoListCard extends LitElement {
 
   _handleKeyDown(ev, action) { if (ev.key === 'Enter') { ev.preventDefault(); action(); } else if (ev.key === 'Escape') { ev.preventDefault(); if (this._isAddAreaOpen) { this._isAddAreaOpen = false; this._resetNewItemInputs(); } else if (this._editedTaskId) { this._editedTaskId = null; this._resetEditInputs(); } else if (this._expandedTaskId) { this._expandedTaskId = null; } } }
   _getDueDateStatus(dueDateStr) { if (!dueDateStr) return null; const today = new Date(); const dueDate = new Date(dueDateStr); const todayStr = today.toISOString().split('T')[0]; const dueStr = dueDateStr.split('T')[0]; if (dueStr < todayStr) return 'overdue'; if (dueStr === todayStr) return 'due-today'; return null; }
-  _getPriorityInfo(priority) { const prio = parseInt(priority, 10); if (isNaN(prio)) return null; if (prio <= 1) return { text: 'Urgent', color: 'var(--error-color)' }; if (prio <= 4) return { text: 'High', color: 'var(--error-color)' }; if (prio <= 7) return { text: 'Medium', color: 'var(--warning-color)' }; return { text: 'Low', color: 'var(--success-color)' }; }
+  _getPriorityInfo(priority) {
+    const option = PRIORITY_INFO[this._sanitizePriority(priority)];
+    if (!option) return null;
+    return { text: this._t(option.labelKey), color: option.color };
+  }
   _formatDueDate(dueDateStr) { if (!dueDateStr) return null; try { const date = new Date(dueDateStr); const now = new Date(); const hasTime = dueDateStr.includes('T') && !dueDateStr.match(/T00:00:00/); const pad = (num) => String(num).padStart(2, '0'); const day = date.getDate(); const month = new Intl.DateTimeFormat(this._hass.locale?.language || 'en', { month: 'short' }).format(date).toLowerCase(); let result = `${day}.${month}`; if (date.getFullYear() !== now.getFullYear()) { result += `.${date.getFullYear()}`; } if (hasTime) { const hours = pad(date.getHours()); const minutes = pad(date.getMinutes()); result += `, ${hours}:${minutes}`; } return result; } catch (e) { console.error('Date formatting error:', e); return dueDateStr; } }
 
   _toggleFilter(type) {
@@ -416,7 +739,7 @@ class TodoListCard extends LitElement {
   render() {
     if (!this._hass || !this._config) return html``;
     const entityState = this._hass.states[this._config.entity];
-    if (!entityState) { return html`<ha-card><div class="warning">Entity not found: ${this._config.entity}</div></ha-card>`; }
+    if (!entityState) { return html`<ha-card><div class="warning">${this._t('entity')}: ${this._config.entity}</div></ha-card>`; }
 
     let allTasks = Array.isArray(this._tasks) ? this._tasks : [];
 
@@ -445,7 +768,7 @@ class TodoListCard extends LitElement {
 
     const sortFn = (a, b) => {
       const sortBy = this._config.sort_by || 'priority'; const sortOrder = this._config.sort_order || 'asc'; const direction = sortOrder === 'desc' ? -1 : 1; let valA, valB;
-      switch (sortBy) { case 'duedate': valA = a.due ? new Date(a.due).getTime() : Infinity; valB = b.due ? new Date(b.due).getTime() : Infinity; break; case 'priority': valA = parseInt(a._cachedMetadata?.priority ?? DEFAULT_PRIORITY, 10); valB = parseInt(b._cachedMetadata?.priority ?? DEFAULT_PRIORITY, 10); break; case 'title': default: valA = a.summary?.toLowerCase() || ''; valB = b.summary?.toLowerCase() || ''; break; }
+      switch (sortBy) { case 'duedate': valA = a.due ? new Date(a.due).getTime() : Infinity; valB = b.due ? new Date(b.due).getTime() : Infinity; break; case 'priority': valA = this._getPriorityRank(a._cachedMetadata?.priority ?? DEFAULT_PRIORITY); valB = this._getPriorityRank(b._cachedMetadata?.priority ?? DEFAULT_PRIORITY); break; case 'title': default: valA = a.summary?.toLowerCase() || ''; valB = b.summary?.toLowerCase() || ''; break; }
       if (valA < valB) return -1 * direction; if (valA > valB) return 1 * direction; return 0;
     };
 
@@ -453,8 +776,10 @@ class TodoListCard extends LitElement {
     const completedItems = allTasks.filter(t => t.status === 'completed').sort(sortFn);
 
     const isFrameless = this._config.card_background === 'none'; const headerPadding = isFrameless ? '6px 4px 12px 16px' : '6px 20px 12px 20px'; const contentPadding = isFrameless ? '0 4px 4px' : '0 12px 12px';
-    let countText = this._config.mode === 'tasks' ? `${activeItems.length} tasks · ${completedItems.length} completed` : `${activeItems.length} items · ${completedItems.length} checked`;
-    if (this._searchQuery) { countText = `${activeItems.length + completedItems.length} results found`; }
+    let countText = this._config.mode === 'tasks'
+      ? this._t('completedTasks', { active: activeItems.length, completed: completedItems.length })
+      : this._t('completedItemsChecked', { active: activeItems.length, completed: completedItems.length });
+    if (this._searchQuery) { countText = this._t('resultsFound', { count: activeItems.length + completedItems.length }); }
 
     return html`
       <ha-card style="background: ${this._config.card_background};">
@@ -471,7 +796,7 @@ class TodoListCard extends LitElement {
             ` : ''}
 
             ${this._config.show_clear_button !== false && completedItems.length > 0 && !this._searchQuery ? html`
-            <ha-icon-button class="clear-button" @click="${this._handleClearCompleted}" title="Clear Completed Items"><ha-icon icon="mdi:broom"></ha-icon></ha-icon-button>
+            <ha-icon-button class="clear-button" @click="${this._handleClearCompleted}" title="${this._t('clearCompletedItems')}"><ha-icon icon="mdi:broom"></ha-icon></ha-icon-button>
             ` : ''}
 
             ${this._config.show_filter_menu !== false ? html`
@@ -483,15 +808,15 @@ class TodoListCard extends LitElement {
                 <div class="filter-dropdown" @click="${(e) => e.stopPropagation()}">
                     <div class="filter-option" @click="${() => this._toggleFilter('active')}">
                         <ha-icon icon="${this._filters.active ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
-                        <span>Active</span>
+                        <span>${this._t('active')}</span>
                     </div>
                     <div class="filter-option" @click="${() => this._toggleFilter('overdue')}">
                         <ha-icon icon="${this._filters.overdue ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
-                        <span>Overdue</span>
+                        <span>${this._t('overdue')}</span>
                     </div>
                     <div class="filter-option" @click="${() => this._toggleFilter('completed')}">
                         <ha-icon icon="${this._filters.completed ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
-                        <span>Completed</span>
+                        <span>${this._t('completed')}</span>
                     </div>
                 </div>
                 ` : ''}
@@ -505,7 +830,7 @@ class TodoListCard extends LitElement {
         <div class="search-bar-container">
             <ha-textfield 
                 id="search-input"
-                placeholder="Search items..." 
+                placeholder="${this._t('searchItems')}" 
                 .value="${this._searchQuery}" 
                 @input="${(e) => this._searchQuery = e.target.value}"
                 iconTrailing
@@ -517,9 +842,9 @@ class TodoListCard extends LitElement {
 
         <div class="card-content" style="padding: ${contentPadding};">
           ${this._error ? html`<div class="error-message" @click="${() => this._error = null}">${this._error}</div>` : ''}
-          ${this._isLoading ? html`<div class="loading">Loading...</div>` : ''}
+          ${this._isLoading ? html`<div class="loading">${this._t('loading')}</div>` : ''}
           ${this._isAddAreaOpen ? this._renderAddForm() : ''}
-          ${allTasks.length === 0 && !this._isAddAreaOpen && !this._isLoading ? html`<div class="empty-list">No items</div>` : ''}
+          ${allTasks.length === 0 && !this._isAddAreaOpen && !this._isLoading ? html`<div class="empty-list">${this._t('noItems')}</div>` : ''}
           ${activeItems.map(item => this._renderItem(item))}
           ${completedItems.map(item => this._renderItem(item))}
         </div>
@@ -531,65 +856,104 @@ class TodoListCard extends LitElement {
   _renderEditForm(item) { if (this._config.mode === 'tasks') return this._renderEditTaskForm(item); if (this._config.mode === 'shopping') return this._renderEditShoppingItemForm(item); return html``; }
   _renderItem(item) { if (this._config.mode === 'tasks') return this._renderTask(item); if (this._config.mode === 'shopping') return this._renderShoppingItem(item); return html``; }
 
+  _renderPrioritySelect(value, handler) {
+    const selectedPriority = this._sanitizePriority(value);
+    return html`
+      <label class="select-field">
+        <span class="select-label">${this._t('priority')}</span>
+        <select @change=${handler}>
+          ${PRIORITY_OPTIONS.map(option => html`
+            <option value=${option.value} ?selected=${selectedPriority === option.value}>${this._t(option.labelKey)}</option>
+          `)}
+        </select>
+      </label>
+    `;
+  }
+
+  _renderNativeField({ label, value = '', onInput, type = 'text', placeholder = '', min = undefined, max = undefined }) {
+    return html`
+      <label class="custom-field">
+        <span class="field-label">${label}</span>
+        <input
+          type=${type}
+          .value=${value}
+          placeholder=${placeholder}
+          min=${min ?? ''}
+          max=${max ?? ''}
+          @input=${onInput}
+        />
+      </label>
+    `;
+  }
+
+  _renderNativeTextarea({ label, value = '', onInput, rows = 3, placeholder = '' }) {
+    return html`
+      <label class="custom-field">
+        <span class="field-label">${label}</span>
+        <textarea .value=${value} rows=${rows} placeholder=${placeholder} @input=${onInput}></textarea>
+      </label>
+    `;
+  }
+
   _renderAddTaskForm() {
     if (this._config.quick_add) {
       return html`<div class="add-edit-area rapid-add" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
-          <ha-textfield label="Add new task..." .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}"></ha-textfield>
-          <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button>
+          ${this._renderNativeField({ label: this._t('addNewTask'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}
+          <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button>
       </div>`;
     }
-    return html`<div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}"><h3>New Task</h3><ha-textfield label="Title" .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}"></ha-textfield><ha-textfield label="Description (optional)" .value="${this._newItemDescription}" @input="${e => this._newItemDescription = e.target.value}"></ha-textfield><div class="row"><ha-textfield label="Priority" type="number" min="1" max="10" .value="${this._newItemPriority}" @input="${e => this._newItemPriority = e.target.value}"></ha-textfield><ha-textfield label="Due Date" type="date" .value="${this._newItemDueDate}" @input="${e => this._newItemDueDate = e.target.value}"></ha-textfield><ha-textfield label="Time (optional)" type="time" .value="${this._newItemDueTime}" @input="${e => this._newItemDueTime = e.target.value}"></ha-textfield></div><ha-icon-picker label="Icon" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker><div class="buttons"><mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">Cancel</mwc-button><mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button></div></div>`;
+    return html`<div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}"><h3>${this._t('newTask')}</h3>${this._renderNativeField({ label: this._t('title'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._newItemDescription, onInput: e => this._newItemDescription = e.target.value, rows: 3 })}<div class="row row-2">${this._renderPrioritySelect(this._newItemPriority, e => this._newItemPriority = e.target.value)}<div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker></div></div><div class="row row-2">${this._renderNativeField({ label: this._t('dueDate'), value: this._newItemDueDate, onInput: e => this._newItemDueDate = e.target.value, type: 'date' })}${this._renderNativeField({ label: this._t('timeOptional'), value: this._newItemDueTime, onInput: e => this._newItemDueTime = e.target.value, type: 'time' })}</div><div class="buttons"><mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button><mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button></div></div>`;
   }
   _renderEditTaskForm(task) {
-    return html`<div class="add-edit-area edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleSaveEdit(task))}"><h3>Edit Task</h3><ha-textfield label="Title" .value="${this._editSummary}" @input="${e => this._editSummary = e.target.value}"></ha-textfield><ha-textfield label="Description (optional)" .value="${this._editDescription}" @input="${e => this._editDescription = e.target.value}"></ha-textfield><div class="row"><ha-textfield label="Priority" type="number" min="1" max="10" .value="${this._editPriority}" @input="${e => this._editPriority = e.target.value}"></ha-textfield><ha-textfield label="Due Date" type="date" .value="${this._editDueDate}" @input="${e => this._editDueDate = e.target.value}"></ha-textfield><ha-textfield label="Time (optional)" type="time" .value="${this._editDueTime}" @input="${e => this._editDueTime = e.target.value}"></ha-textfield></div><ha-icon-picker label="Icon" .value="${this._editIcon}" @value-changed="${e => this._editIcon = e.detail.value}"></ha-icon-picker><div class="buttons"><mwc-button @click="${(e) => this._handleDeleteItem(e, task)}" class="btn btn-delete">Delete</mwc-button><div style="flex-grow: 1;"></div><mwc-button @click="${() => { this._editedTaskId = null; this._resetEditInputs(); }}" class="btn btn-cancel">Cancel</mwc-button><mwc-button @click="${() => this._handleSaveEdit(task)}" raised class="btn btn-add">Save</mwc-button></div></div>`;
+    return html`<div class="add-edit-area edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleSaveEdit(task))}"><h3>${this._t('editTask')}</h3>${this._renderNativeField({ label: this._t('title'), value: this._editSummary, onInput: e => this._editSummary = e.target.value })}${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._editDescription, onInput: e => this._editDescription = e.target.value, rows: 3 })}<div class="row row-2">${this._renderPrioritySelect(this._editPriority, e => this._editPriority = e.target.value)}<div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._editIcon}" @value-changed="${e => this._editIcon = e.detail.value}"></ha-icon-picker></div></div><div class="row row-2">${this._renderNativeField({ label: this._t('dueDate'), value: this._editDueDate, onInput: e => this._editDueDate = e.target.value, type: 'date' })}${this._renderNativeField({ label: this._t('timeOptional'), value: this._editDueTime, onInput: e => this._editDueTime = e.target.value, type: 'time' })}</div><div class="buttons"><mwc-button @click="${(e) => this._handleDeleteItem(e, task)}" class="btn btn-delete">${this._t('delete')}</mwc-button><div style="flex-grow: 1;"></div><mwc-button @click="${() => { this._editedTaskId = null; this._resetEditInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button><mwc-button @click="${() => this._handleSaveEdit(task)}" raised class="btn btn-add">${this._t('save')}</mwc-button></div></div>`;
   }
   _renderAddShoppingItemForm() {
     if (this._config.quick_add) {
       return html`
       <div class="add-edit-area rapid-add" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
-          <ha-textfield label="Add item..." .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}"></ha-textfield>
-          <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button>
+          ${this._renderNativeField({ label: this._t('addItem'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}
+          <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button>
       </div>`;
     }
     return html`
     <div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
-        <h3>New Shopping Item</h3>
-        <div class="row">
-            <ha-textfield label="Item Name" .value="${this._newItemSummary}" @input="${e => this._newItemSummary = e.target.value}" style="flex-grow: 1;"></ha-textfield>
-            <ha-textfield label="Qty" type="number" min="1" .value="${this._newItemQuantity}" @input="${e => this._newItemQuantity = e.target.value}" style="width: 30%;"></ha-textfield>
+        <h3>${this._t('newShoppingItem')}</h3>
+        <div class="row row-2">
+            ${this._renderNativeField({ label: this._t('itemName'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}
+            ${this._renderNativeField({ label: this._t('qty'), value: this._newItemQuantity, onInput: e => this._newItemQuantity = e.target.value, type: 'number', min: '1' })}
         </div>
-        <ha-textfield label="Description (optional)" .value="${this._newItemDescription}" @input="${e => this._newItemDescription = e.target.value}"></ha-textfield>
-        <ha-textfield label="Link (optional)" .value="${this._newItemLink}" @input="${e => this._newItemLink = e.target.value}"></ha-textfield>
-        <ha-icon-picker label="Icon" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker>
+        ${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._newItemDescription, onInput: e => this._newItemDescription = e.target.value, rows: 3 })}
+        ${this._renderNativeField({ label: this._t('linkOptional'), value: this._newItemLink, onInput: e => this._newItemLink = e.target.value })}
+        <div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker></div>
         <div class="buttons">
-            <mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">Cancel</mwc-button>
-            <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">Add</mwc-button>
+            <mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button>
+            <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button>
         </div>
     </div>`;
   }
   _renderEditShoppingItemForm(item) {
     return html`
     <div class="add-edit-area edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleSaveEdit(item))}">
-        <h3>Edit Item</h3>
-        <div class="row">
-            <ha-textfield label="Item Name" .value="${this._editSummary}" @input="${e => this._editSummary = e.target.value}" style="flex-grow: 1;"></ha-textfield>
-            <ha-textfield label="Qty" type="number" min="1" .value="${this._editQuantity}" @input="${e => this._editQuantity = e.target.value}" style="width: 30%;"></ha-textfield>
+        <h3>${this._t('editItem')}</h3>
+        <div class="row row-2">
+            ${this._renderNativeField({ label: this._t('itemName'), value: this._editSummary, onInput: e => this._editSummary = e.target.value })}
+            ${this._renderNativeField({ label: this._t('qty'), value: this._editQuantity, onInput: e => this._editQuantity = e.target.value, type: 'number', min: '1' })}
         </div>
-        <ha-textfield label="Description (optional)" .value="${this._editDescription}" @input="${e => this._editDescription = e.target.value}"></ha-textfield>
-        <ha-textfield label="Link (optional)" .value="${this._editLink}" @input="${e => this._editLink = e.target.value}"></ha-textfield>
-        <ha-icon-picker label="Icon" .value="${this._editIcon}" @value-changed="${e => this._editIcon = e.detail.value}"></ha-icon-picker>
+        ${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._editDescription, onInput: e => this._editDescription = e.target.value, rows: 3 })}
+        ${this._renderNativeField({ label: this._t('linkOptional'), value: this._editLink, onInput: e => this._editLink = e.target.value })}
+        <div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._editIcon}" @value-changed="${e => this._editIcon = e.detail.value}"></ha-icon-picker></div>
         <div class="buttons">
-            <mwc-button @click="${(e) => this._handleDeleteItem(e, item)}" class="btn btn-delete">Delete</mwc-button>
+            <mwc-button @click="${(e) => this._handleDeleteItem(e, item)}" class="btn btn-delete">${this._t('delete')}</mwc-button>
             <div style="flex-grow: 1;"></div>
-            <mwc-button @click="${() => { this._editedTaskId = null; this._resetEditInputs(); }}" class="btn btn-cancel">Cancel</mwc-button>
-            <mwc-button @click="${() => this._handleSaveEdit(item)}" raised class="btn btn-add">Save</mwc-button>
+            <mwc-button @click="${() => { this._editedTaskId = null; this._resetEditInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button>
+            <mwc-button @click="${() => this._handleSaveEdit(item)}" raised class="btn btn-add">${this._t('save')}</mwc-button>
         </div>
     </div>`;
   }
 
   _renderPriorityLabel(priority) {
     const priorityInfo = this._getPriorityInfo(priority); if (!priorityInfo) return '';
-    return html`<span class="priority-label" style="background-color: ${priorityInfo.color};" title="Priority: ${priority}">${priorityInfo.text}</span>`;
+    return html`<span class="priority-label" style="background-color: ${priorityInfo.color};" title="${this._t('sortPriorityTitle', { priority: priorityInfo.text })}">${priorityInfo.text}</span>`;
   }
 
   _renderSubtasks(task) {
@@ -610,19 +974,19 @@ class TodoListCard extends LitElement {
               `)}
           </ul>
           <div class="add-subtask-row">
-              <ha-textfield id="subtask-input-${task.uid}" placeholder="Add new sub-item" @keydown="${(e) => { if (e.key === 'Enter') this._handleAddSubtask(e, task); }}"></ha-textfield>
+              <ha-textfield id="subtask-input-${task.uid}" placeholder="${this._t('addSubItem')}" @keydown="${(e) => { if (e.key === 'Enter') this._handleAddSubtask(e, task); }}"></ha-textfield>
               <mwc-button raised class="btn btn-add-subtask" @click="${(e) => this._handleAddSubtask(e, task)}"><ha-icon icon="mdi:plus"></ha-icon></mwc-button>
           </div>
           <div class="subtask-buttons">
               <div style="flex-grow: 1;"></div>
-              <mwc-button @click="${(e) => { e.stopPropagation(); this._toggleEditMode(task.uid); }}" class="btn btn-edit">Edit Details</mwc-button>
+              <mwc-button @click="${(e) => { e.stopPropagation(); this._toggleEditMode(task.uid); }}" class="btn btn-edit">${this._t('editDetails')}</mwc-button>
           </div>
       </div>
     `;
   }
 
   _renderTask(task) {
-    const isCompleted = task.status === 'completed'; const textColor = isCompleted ? this._config.completed_text_color : this._config.text_color; const metadata = task._cachedMetadata ?? {}; const description = metadata.description || null; const priority = metadata.priority || DEFAULT_PRIORITY; const icon = metadata.icon || 'mdi:hammer'; const dueDate = task.due || null; const dueDateStatus = this._getDueDateStatus(dueDate);
+    const isCompleted = task.status === 'completed'; const textColor = isCompleted ? this._config.completed_text_color : this._config.text_color; const metadata = task._cachedMetadata ?? {}; const description = metadata.description || null; const priority = metadata.priority || DEFAULT_PRIORITY; const icon = metadata.icon || this._getDefaultTaskIcon(); const dueDate = task.due || null; const dueDateStatus = this._getDueDateStatus(dueDate);
     const subtasks = metadata.subtasks || []; const completedSubtasks = subtasks.filter(s => s.status === 'completed').length; const totalSubtasks = subtasks.length; const hasDescription = !!description; const hasDueDate = !isCompleted && !!dueDate;
     return html`
       <div class="task-container">
@@ -696,6 +1060,7 @@ class TodoListCard extends LitElement {
       :host {
         display: block;
         position: relative; /* Allows z-index to work */
+        --todo-card-field-background: var(--ha-color-form-background, var(--secondary-background-color, var(--ha-card-background, var(--card-background-color))));
       }
       ha-card { 
         display: flex; 
@@ -713,7 +1078,7 @@ class TodoListCard extends LitElement {
       ha-icon {display:flex!important;}
       .btn {border-radius: 20px; padding: 4px 12px; pointer: cursor;}
       .btn-edit, .btn-add {background:var(--primary-color); color: var(--mdc-theme-on-secondary); }
-      .btn-delete {background:var(--error-color); color: var(--text-primary-color); }
+      .btn-delete {background:var(--error-color); color: var(--mdc-theme-on-secondary); }
       .btn-cancel {background:var(--card-background-color);}
       .warning, .empty-list, .loading { padding: 16px; text-align: center; }
       .error-message { padding: 12px; margin: 0 12px 12px; background-color: var(--error-color); color: var(--text-primary-color); border-radius: var(--ha-card-border-radius, 12px); text-align: center; cursor: pointer; }
@@ -743,8 +1108,58 @@ class TodoListCard extends LitElement {
       .edit-area { margin-top: -56px; padding-top: 66px; }
       .add-edit-area.edit-area { animation: slide-down-subtle 0.3s ease-out; }
       .add-edit-area h3 { margin: 0 0 16px; }
-      .add-edit-area ha-textfield, .add-edit-area ha-icon-picker { display: block; width: 100%; margin-bottom: 8px; --mdc-text-field-fill-color: rgba(0,0,0,0.2); }
+      .add-edit-area .custom-field,
+      .add-edit-area .select-field,
+      .add-edit-area .icon-picker-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .add-edit-area .field-label,
+      .add-edit-area .select-label {
+        color: var(--secondary-text-color);
+        font-size: 12px;
+      }
+      .add-edit-area .custom-field input,
+      .add-edit-area .custom-field textarea,
+      .add-edit-area .select-field select {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 56px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--divider-color);
+        background: var(--todo-card-field-background);
+        color: var(--primary-text-color);
+        font: inherit;
+      }
+      .add-edit-area .custom-field textarea {
+        min-height: 96px;
+        resize: vertical;
+      }
+      .add-edit-area .custom-field input:focus,
+      .add-edit-area .custom-field textarea:focus,
+      .add-edit-area .select-field select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
+      }
+      .add-edit-area .themed-icon-picker {
+        display: block;
+        width: 100%;
+        min-height: 56px;
+        border-radius: 12px;
+        background: var(--todo-card-field-background);
+        --mdc-text-field-fill-color: var(--todo-card-field-background);
+        --mdc-shape-small: 12px;
+        --mdc-shape-medium: 12px;
+        --mdc-theme-primary: var(--primary-color);
+        --ha-icon-picker-container-border-radius: 12px;
+      }
       .add-edit-area .row { display: flex; gap: 8px; align-items: flex-end; }
+      .add-edit-area .row.row-2 > * { flex: 1; }
       .add-edit-area .buttons, .subtask-buttons { display: flex; justify-content: flex-end; margin-top: 16px; gap: 12px; }
       .shopping-item .task-text { padding-left: 20px; }
       .link-button { margin-left: auto; color: var(--secondary-text-color); }
@@ -802,11 +1217,33 @@ class TodoListCardEditor extends LitElement {
     return {
       hass: { type: Object },
       _config: { type: Object },
+      _translations: { state: true },
+      _activeLanguage: { state: true },
     };
   }
 
+  constructor() {
+    super();
+    this._translations = FALLBACK_TRANSLATIONS;
+    this._activeLanguage = 'en';
+  }
+
   setConfig(config) {
-    this._config = config;
+    this._config = {
+      default_task_icon: DEFAULT_TASK_ICON,
+      language: DEFAULT_LANGUAGE,
+      ...config,
+    };
+    this._loadTranslations();
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('hass')) {
+      const nextLanguage = this._getResolvedLanguage();
+      if (nextLanguage !== this._activeLanguage) {
+        this._loadTranslations();
+      }
+    }
   }
 
   configChanged(newConfig) {
@@ -818,56 +1255,122 @@ class TodoListCardEditor extends LitElement {
     this.dispatchEvent(event);
   }
 
+  _getResolvedLanguage() {
+    const configuredLanguage = this._config?.language || DEFAULT_LANGUAGE;
+    if (configuredLanguage !== DEFAULT_LANGUAGE) {
+      return configuredLanguage;
+    }
+    const hassLanguage = this.hass?.locale?.language || 'en';
+    if (hassLanguage.startsWith('de')) return 'de';
+    if (hassLanguage.startsWith('no') || hassLanguage.startsWith('nb') || hassLanguage.startsWith('nn')) return 'no';
+    return 'en';
+  }
+
+  async _loadTranslations() {
+    const nextLanguage = this._getResolvedLanguage();
+    this._activeLanguage = nextLanguage;
+    const builtinTranslations = BUILTIN_TRANSLATIONS[nextLanguage] || FALLBACK_TRANSLATIONS;
+    if (nextLanguage === 'en') {
+      this._translations = builtinTranslations;
+      return;
+    }
+    try {
+      const response = await fetch(new URL(`${nextLanguage}.json`, TRANSLATIONS_PATH));
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const translations = await response.json();
+      this._translations = { ...builtinTranslations, ...translations };
+    } catch (err) {
+      this._translations = builtinTranslations;
+    }
+  }
+
+  _t(key, values) {
+    return interpolateTemplate(this._translations?.[key] || FALLBACK_TRANSLATIONS[key] || key, values);
+  }
+
+  _renderEditorField({ label, value = '', onInput, type = 'text', helper = '', placeholder = '' }) {
+    return html`
+      <label class="custom-field">
+        <span class="field-label">${label}</span>
+        <input type=${type} .value=${value} placeholder=${placeholder} @input=${onInput} />
+        ${helper ? html`<span class="field-helper">${helper}</span>` : ''}
+      </label>
+    `;
+  }
+
   render() {
     if (!this.hass || !this._config) {
       return html``;
     }
     return html`
       <div class="card-config">
-        <ha-entity-picker label="Entity" .hass=${this.hass} .value=${this._config.entity} .includeDomains=${['todo']} @value-changed=${this._entityChanged} allow-custom-entity></ha-entity-picker>
-        <ha-textfield label="Title" .value=${this._config.title || ''} @input=${this._titleChanged}></ha-textfield>
+        <ha-entity-picker label="${this._t('entity')}" .hass=${this.hass} .value=${this._config.entity} .includeDomains=${['todo']} @value-changed=${this._entityChanged} allow-custom-entity></ha-entity-picker>
+        ${this._renderEditorField({ label: this._t('title'), value: this._config.title || '', onInput: this._titleChanged })}
         <div class="row">
-            <ha-select label="Sort By" .value=${this._config.sort_by || 'priority'} @closed=${this._sortbyChanged} fixedMenuPosition naturalMenuWidth>
-              <mwc-list-item value="priority">Priority</mwc-list-item>
-              <mwc-list-item value="duedate">Due Date</mwc-list-item>
-              <mwc-list-item value="title">Title</mwc-list-item>
-            </ha-select>
-            <ha-select label="Sort Order" .value=${this._config.sort_order || 'asc'} @closed=${this._sortorderChanged} fixedMenuPosition naturalMenuWidth>
-              <mwc-list-item value="asc">Ascending</mwc-list-item>
-              <mwc-list-item value="desc">Descending</mwc-list-item>
-            </ha-select>
+            <label class="select-field">
+              <span class="select-label">${this._t('sortBy')}</span>
+              <select .value=${this._config.sort_by || 'priority'} @change=${this._sortbyChanged}>
+                <option value="priority">${this._t('priority')}</option>
+                <option value="duedate">${this._t('dueDate')}</option>
+                <option value="title">${this._t('title')}</option>
+              </select>
+            </label>
+            <label class="select-field">
+              <span class="select-label">${this._t('sortOrder')}</span>
+              <select .value=${this._config.sort_order || 'asc'} @change=${this._sortorderChanged}>
+                <option value="asc">${this._t('ascending')}</option>
+                <option value="desc">${this._t('descending')}</option>
+              </select>
+            </label>
         </div>
-        <ha-select label="Mode" .value=${this._config.mode || 'tasks'} @closed=${this._modeChanged} fixedMenuPosition naturalMenuWidth>
-          <mwc-list-item value="tasks">Tasks</mwc-list-item>
-          <mwc-list-item value="shopping">Shopping</mwc-list-item>
-        </ha-select>
-        <ha-textfield label="Card Background (CSS)" .value=${this._config.card_background || DEFAULT_CARD_BACKGROUND} .helper=${"Use any CSS background. Set to 'none' for no padding."} .helperPersistent=${true} @input=${this._cardBackgroundChanged}></ha-textfield>
-        <ha-textfield label="Card Color (CSS)" .value=${this._config.card_color || DEFAULT_CARD_COLOR} @input=${this._cardColorChanged}></ha-textfield>
-        <ha-textfield label="Completed Color (CSS)" .value=${this._config.completed_color || DEFAULT_COMPLETED_COLOR} @input=${this._completedColorChanged}></ha-textfield>
-        <ha-textfield label="Icon Background (CSS)" .value=${this._config.icon_background || DEFAULT_ICON_BACKGROUND} @input=${this._iconBackgroundChanged}></ha-textfield>
-        <ha-textfield label="Text Color (CSS)" .value=${this._config.text_color || DEFAULT_TEXT_COLOR} @input=${this._textColorChanged}></ha-textfield>
-        <ha-textfield label="Completed Text Color (CSS)" .value=${this._config.completed_text_color || DEFAULT_COMPLETED_TEXT_COLOR} @input=${this._completedTextColorChanged}></ha-textfield>
-        <ha-formfield label="Show Priority"><ha-switch .checked=${this._config.show_priority !== false} @change=${this._showPriorityChanged}></ha-switch></ha-formfield>
-        <ha-formfield label="Confirm Before Delete"><ha-switch .checked=${this._config.confirm_delete !== false} @change=${this._confirmDeleteChanged}></ha-switch></ha-formfield>
-        <ha-formfield label="Auto-complete parent task"><ha-switch .checked=${this._config.auto_complete_parent === true} @change=${this._autoCompleteChanged}></ha-switch></ha-formfield>
-        <ha-formfield label="Show Filter Menu"><ha-switch .checked=${this._config.show_filter_menu !== false} @change=${this._showFilterMenuChanged}></ha-switch></ha-formfield>
-        <ha-formfield label="Show Search Button"><ha-switch .checked=${this._config.show_search_button !== false} @change=${this._showSearchButtonChanged}></ha-switch></ha-formfield>
-        <ha-formfield label="Show Clear Button"><ha-switch .checked=${this._config.show_clear_button !== false} @change=${this._showClearButtonChanged}></ha-switch></ha-formfield>
-        <ha-formfield label="Enable Quick Add (Rapid Entry)"><ha-switch .checked=${this._config.quick_add === true} @change=${this._quickAddChanged}></ha-switch></ha-formfield>
+        <label class="select-field">
+          <span class="select-label">${this._t('mode')}</span>
+          <select .value=${this._config.mode || 'tasks'} @change=${this._modeChanged}>
+            <option value="tasks">${this._t('tasks')}</option>
+            <option value="shopping">${this._t('shopping')}</option>
+          </select>
+        </label>
+        ${this._renderEditorField({ label: this._t('cardBackgroundCss'), value: this._config.card_background || DEFAULT_CARD_BACKGROUND, onInput: this._cardBackgroundChanged, helper: this._t('useAnyCssBackground') })}
+        ${this._renderEditorField({ label: this._t('cardColorCss'), value: this._config.card_color || DEFAULT_CARD_COLOR, onInput: this._cardColorChanged })}
+        ${this._renderEditorField({ label: this._t('completedColorCss'), value: this._config.completed_color || DEFAULT_COMPLETED_COLOR, onInput: this._completedColorChanged })}
+        ${this._renderEditorField({ label: this._t('iconBackgroundCss'), value: this._config.icon_background || DEFAULT_ICON_BACKGROUND, onInput: this._iconBackgroundChanged })}
+        ${this._renderEditorField({ label: this._t('textColorCss'), value: this._config.text_color || DEFAULT_TEXT_COLOR, onInput: this._textColorChanged })}
+        ${this._renderEditorField({ label: this._t('completedTextColorCss'), value: this._config.completed_text_color || DEFAULT_COMPLETED_TEXT_COLOR, onInput: this._completedTextColorChanged })}
+        <div class="icon-picker-field"><span class="field-label">${this._t('defaultTaskIcon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._config.default_task_icon || DEFAULT_TASK_ICON}" @value-changed=${this._defaultTaskIconChanged}></ha-icon-picker></div>
+        <label class="select-field">
+          <span class="select-label">${this._t('language')}</span>
+          <select .value=${this._config.language || DEFAULT_LANGUAGE} @change=${this._languageChanged}>
+            <option value="auto">${this._t('languageAuto')}</option>
+            <option value="en">${this._t('languageEn')}</option>
+            <option value="no">${this._t('languageNo')}</option>
+            <option value="de">${this._t('languageDe')}</option>
+          </select>
+        </label>
+        <ha-formfield label="${this._t('showPriority')}"><ha-switch .checked=${this._config.show_priority !== false} @change=${this._showPriorityChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="${this._t('confirmBeforeDelete')}"><ha-switch .checked=${this._config.confirm_delete !== false} @change=${this._confirmDeleteChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="${this._t('autoCompleteParentTask')}"><ha-switch .checked=${this._config.auto_complete_parent === true} @change=${this._autoCompleteChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="${this._t('showFilterMenu')}"><ha-switch .checked=${this._config.show_filter_menu !== false} @change=${this._showFilterMenuChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="${this._t('showSearchButton')}"><ha-switch .checked=${this._config.show_search_button !== false} @change=${this._showSearchButtonChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="${this._t('showClearButton')}"><ha-switch .checked=${this._config.show_clear_button !== false} @change=${this._showClearButtonChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="${this._t('enableQuickAdd')}"><ha-switch .checked=${this._config.quick_add === true} @change=${this._quickAddChanged}></ha-switch></ha-formfield>
       </div>
     `;
   }
   _entityChanged(ev) { this.configChanged({ ...this._config, entity: ev.detail.value }); }
   _titleChanged(ev) { this.configChanged({ ...this._config, title: ev.target.value }); }
-  _sortbyChanged(ev) { ev.stopPropagation(); if (!ev.target.value) return; this.configChanged({ ...this._config, sort_by: ev.target.value }); }
-  _sortorderChanged(ev) { ev.stopPropagation(); if (!ev.target.value) return; this.configChanged({ ...this._config, sort_order: ev.target.value }); }
-  _modeChanged(ev) { ev.stopPropagation(); if (!ev.target.value) return; this.configChanged({ ...this._config, mode: ev.target.value }); }
+  _sortbyChanged(ev) { if (!ev.target.value) return; this.configChanged({ ...this._config, sort_by: ev.target.value }); }
+  _sortorderChanged(ev) { if (!ev.target.value) return; this.configChanged({ ...this._config, sort_order: ev.target.value }); }
+  _modeChanged(ev) { if (!ev.target.value) return; this.configChanged({ ...this._config, mode: ev.target.value }); }
   _cardBackgroundChanged(ev) { this.configChanged({ ...this._config, card_background: ev.target.value }); }
   _cardColorChanged(ev) { this.configChanged({ ...this._config, card_color: ev.target.value }); }
   _completedColorChanged(ev) { this.configChanged({ ...this._config, completed_color: ev.target.value }); }
   _iconBackgroundChanged(ev) { this.configChanged({ ...this._config, icon_background: ev.target.value }); }
   _textColorChanged(ev) { this.configChanged({ ...this._config, text_color: ev.target.value }); }
   _completedTextColorChanged(ev) { this.configChanged({ ...this._config, completed_text_color: ev.target.value }); }
+  _defaultTaskIconChanged(ev) { this.configChanged({ ...this._config, default_task_icon: ev.detail.value || DEFAULT_TASK_ICON }); }
+  _languageChanged(ev) { this.configChanged({ ...this._config, language: ev.target.value || DEFAULT_LANGUAGE }); }
   _showPriorityChanged(ev) { this.configChanged({ ...this._config, show_priority: ev.target.checked }); }
   _confirmDeleteChanged(ev) { this.configChanged({ ...this._config, confirm_delete: ev.target.checked }); }
   _autoCompleteChanged(ev) { this.configChanged({ ...this._config, auto_complete_parent: ev.target.checked }); }
@@ -876,7 +1379,53 @@ class TodoListCardEditor extends LitElement {
   _showClearButtonChanged(ev) { this.configChanged({ ...this._config, show_clear_button: ev.target.checked }); }
   _quickAddChanged(ev) { this.configChanged({ ...this._config, quick_add: ev.target.checked }); }
   static get styles() {
-    return css`.card-config { display: flex; flex-direction: column; gap: 16px; padding: 16px 0; } .row { display: flex; gap: 16px; } .row > * { flex: 1; } ha-formfield { display: flex; align-items: center; padding: 8px 0; }`;
+    return css`
+      :host { --todo-card-field-background: var(--ha-color-form-background, var(--secondary-background-color, var(--ha-card-background, var(--card-background-color)))); }
+      .card-config { display: flex; flex-direction: column; gap: 16px; padding: 16px 0; }
+      .row { display: flex; gap: 16px; }
+      .row > * { flex: 1; }
+      ha-formfield { display: flex; align-items: center; padding: 8px 0; }
+      .custom-field,
+      .select-field,
+      .icon-picker-field { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+      .field-label,
+      .select-label { color: var(--secondary-text-color); font-size: 12px; }
+      .custom-field input,
+      .select-field select {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 56px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--divider-color);
+        background: var(--todo-card-field-background);
+        color: var(--primary-text-color);
+        font: inherit;
+      }
+      .custom-field input:focus,
+      .select-field select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
+      }
+      .field-helper {
+        color: var(--secondary-text-color);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .themed-icon-picker {
+        display: block;
+        width: 100%;
+        min-height: 56px;
+        border-radius: 12px;
+        background: var(--todo-card-field-background);
+        --mdc-text-field-fill-color: var(--todo-card-field-background);
+        --mdc-shape-small: 12px;
+        --mdc-shape-medium: 12px;
+        --mdc-theme-primary: var(--primary-color);
+        --ha-icon-picker-container-border-radius: 12px;
+      }
+    `;
   }
 }
 
