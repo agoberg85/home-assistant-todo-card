@@ -26,15 +26,6 @@ Subscribe to Youtube channel: https://www.youtube.com/@My_Smart_Home
 *   **Translations:** File-based translations with `en.json`, `no.json`, and `de.json`, plus automatic Home Assistant locale detection.
 *   **Metadata Storage:** Subtasks and extra details are stored safely within the standard Todo item's description field as JSON.
 
-## New In v1.7.0
-
-*   Added language support with automatic Home Assistant locale detection and bundled `en`, `no`, and `de` translations.
-*   Added a configurable default task icon in both YAML and the visual editor.
-*   Refactored task priorities to use explicit labels (`urgent`, `high`, `medium`, `low`) while remaining backward compatible with legacy numeric priorities.
-*   Added optional quick add, search button, filter menu, and clear completed controls.
-*   Added parent task auto-complete behavior based on subtask completion.
-*   Improved the visual editor and documentation for the newer configuration options.
-
 ## Installation
 
 ### Option 1: HACS (Custom Repository)
