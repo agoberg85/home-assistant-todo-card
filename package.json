@@ -1,13 +1,27 @@
 {
   "name": "todo-card",
-  "version": "v1.7.0",
+  "version": "v1.7.1",
   "main": "todo-card.js",
+  "type": "module",
+  "homepage": "https://github.com/agoberg85/home-assistant-todo-card",
+  "bugs": {
+    "url": "https://github.com/agoberg85/home-assistant-todo-card/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agoberg85/home-assistant-todo-card.git"
+  },
   "scripts": {
     "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "home-assistant",
+    "lovelace",
+    "todo",
+    "custom-card"
+  ],
+  "author": "agoberg85",
   "license": "ISC",
   "description": "A customizable Home Assistant todo card with subtasks, translations, task priorities, and shopping list support.",
   "devDependencies": {

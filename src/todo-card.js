@@ -652,7 +652,7 @@ class TodoListCard extends LitElement {
         setTimeout(() => {
           const addArea = this.shadowRoot.querySelector('.add-edit-area');
           if (addArea) {
-            const titleInput = addArea.querySelector('ha-textfield');
+            const titleInput = addArea.querySelector('ha-input');
             if (titleInput) titleInput.focus();
           }
         }, 50);
@@ -828,7 +828,7 @@ class TodoListCard extends LitElement {
         
         ${this._isSearchOpen ? html`
         <div class="search-bar-container">
-            <ha-textfield 
+            <ha-input 
                 id="search-input"
                 placeholder="${this._t('searchItems')}" 
                 .value="${this._searchQuery}" 
@@ -836,7 +836,7 @@ class TodoListCard extends LitElement {
                 iconTrailing
             >
                 <ha-icon slot="trailingIcon" icon="mdi:close" @click="${() => { this._searchQuery = ''; this._isSearchOpen = false; }}" style="cursor: pointer;"></ha-icon>
-            </ha-textfield>
+            </ha-input>
         </div>
         ` : ''}
 
@@ -974,7 +974,7 @@ class TodoListCard extends LitElement {
               `)}
           </ul>
           <div class="add-subtask-row">
-              <ha-textfield id="subtask-input-${task.uid}" placeholder="${this._t('addSubItem')}" @keydown="${(e) => { if (e.key === 'Enter') this._handleAddSubtask(e, task); }}"></ha-textfield>
+              <ha-input id="subtask-input-${task.uid}" placeholder="${this._t('addSubItem')}" @keydown="${(e) => { if (e.key === 'Enter') this._handleAddSubtask(e, task); }}"></ha-input>
               <mwc-button raised class="btn btn-add-subtask" @click="${(e) => this._handleAddSubtask(e, task)}"><ha-icon icon="mdi:plus"></ha-icon></mwc-button>
           </div>
           <div class="subtask-buttons">
@@ -1092,7 +1092,7 @@ class TodoListCard extends LitElement {
       .task-item.completed { opacity: 0.7; }
       .completed .summary > span:first-child { text-decoration: line-through; }
       .completed .priority { color: inherit; }
-      .icon { display: flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
+      .icon { display: flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 50%; border: 1px solid rgba(250, 251, 252, 0.06); margin-right: 12px; flex-shrink: 0; }
       .task-text { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; padding: 0; }
       .quantity { font-weight: normal; opacity: 0.8; margin-left: 4px; flex-shrink: 0; }
       .priority { font-size: 14px; font-weight: 400; opacity: 0.7; display: flex; align-items: center; flex-wrap: wrap; }
@@ -1103,7 +1103,7 @@ class TodoListCard extends LitElement {
       .checkbox:hover { background-color: rgba(255, 255, 255, 0.1); }
       .add-edit-area { border-radius: var(--ha-card-border-radius, 12px); margin-bottom: 12px; animation: slide-down 0.3s ease-out; position: relative; z-index: 0; padding: 16px; }
       .add-edit-area.rapid-add { display: flex; flex-direction: row; align-items: center; padding: 8px 16px; justify-content: space-between; gap: 8px; }
-      .add-edit-area.rapid-add ha-textfield { flex-grow: 1; margin-bottom: 0; }
+      .add-edit-area.rapid-add ha-input { flex-grow: 1; margin-bottom: 0; }
       .add-edit-area.rapid-add .btn-add { margin-top: 0; flex-shrink: 0; }
       .edit-area { margin-top: -56px; padding-top: 66px; }
       .add-edit-area.edit-area { animation: slide-down-subtle 0.3s ease-out; }
@@ -1175,11 +1175,11 @@ class TodoListCard extends LitElement {
       .subtask-item.completed .subtask-summary { text-decoration: line-through; opacity: 0.7; }
       .delete-subtask { --mdc-icon-button-size: 32px; color: var(--secondary-text-color); }
       .add-subtask-row { display: flex; gap: 8px; align-items: center; }
-      .add-subtask-row ha-textfield { flex-grow: 1; --mdc-text-field-fill-color: rgba(0,0,0,0.2); }
+      .add-subtask-row ha-input { flex-grow: 1; --mdc-text-field-fill-color: rgba(0,0,0,0.2); }
       
       /* Search Bar Styles */
       .search-bar-container { padding: 0 16px 30px 16px; animation: slide-down-subtle 0.2s ease-out; }
-      .search-bar-container ha-textfield { width: 100%; }
+      .search-bar-container ha-input { width: 100%; }
 
       /* Filter Menu Styles */
       .filter-menu-container { position: relative; }
