@@ -33,6 +33,7 @@
   "failedToLoadItems": "Kunne ikke laste elementer: {message}",
   "failedToUpdateItem": "Kunne ikke oppdatere element: {message}",
   "failedToUpdateSubtasks": "Kunne ikke oppdatere deloppgaver: {message}",
+  "hideCompletedShoppingItems": "Skjul fullførte handlevarer",
   "icon": "Ikon",
   "iconBackgroundCss": "Ikonbakgrunn (CSS)",
   "itemName": "Navn",

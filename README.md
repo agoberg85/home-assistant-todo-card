@@ -19,6 +19,7 @@ Subscribe to Youtube channel: https://www.youtube.com/@My_Smart_Home
 *   **Visual Editor:** Supports the Home Assistant visual card editor, including mode, sorting, language selection, and default task icon.
 *   **Sorting:** Sort by Priority, Due Date, or Title (Ascending/Descending).
 *   **Search & Filters:** Optional search button, filter menu, and clear completed button.
+*   **Shopping Visibility:** Optionally hide completed shopping items without deleting them.
 *   **Quick Add:** Optional rapid-entry mode for faster task capture.
 *   **Auto-complete Parent Tasks:** Automatically complete or reopen a parent task based on subtask status.
 *   **Default Task Icon:** Set a custom default icon for task mode.
@@ -72,6 +73,7 @@ quick_add: false
 show_filter_menu: true
 show_search_button: true
 show_clear_button: true
+hide_completed_shopping_items: false
 ```
 
 ### Translation files

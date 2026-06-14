@@ -33,6 +33,7 @@
   "failedToLoadItems": "Elemente konnten nicht geladen werden: {message}",
   "failedToUpdateItem": "Element konnte nicht aktualisiert werden: {message}",
   "failedToUpdateSubtasks": "Teilaufgaben konnten nicht aktualisiert werden: {message}",
+  "hideCompletedShoppingItems": "Erledigte Einkaufsartikel ausblenden",
   "icon": "Symbol",
   "iconBackgroundCss": "Symbolhintergrund (CSS)",
   "itemName": "Name",
