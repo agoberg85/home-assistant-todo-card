@@ -33,6 +33,7 @@
   "failedToLoadItems": "Failed to load items: {message}",
   "failedToUpdateItem": "Failed to update item: {message}",
   "failedToUpdateSubtasks": "Failed to update sub-tasks: {message}",
+  "hideCompletedShoppingItems": "Hide Completed Shopping Items",
   "icon": "Icon",
   "iconBackgroundCss": "Icon Background (CSS)",
   "itemName": "Item Name",

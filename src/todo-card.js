@@ -68,6 +68,7 @@ const FALLBACK_TRANSLATIONS = {
   failedToUpdateItem: 'Failed to update item: {message}',
   failedToUpdateSubtasks: 'Failed to update sub-tasks: {message}',
   high: 'High',
+  hideCompletedShoppingItems: 'Hide Completed Shopping Items',
   icon: 'Icon',
   iconBackgroundCss: 'Icon Background (CSS)',
   itemName: 'Item Name',
@@ -147,6 +148,7 @@ const BUILTIN_TRANSLATIONS = {
     failedToLoadItems: 'Kunne ikke laste elementer: {message}',
     failedToUpdateItem: 'Kunne ikke oppdatere element: {message}',
     failedToUpdateSubtasks: 'Kunne ikke oppdatere deloppgaver: {message}',
+    hideCompletedShoppingItems: 'Skjul fullforte handlevarer',
     icon: 'Ikon',
     iconBackgroundCss: 'Ikonbakgrunn (CSS)',
     itemName: 'Navn',
@@ -221,6 +223,7 @@ const BUILTIN_TRANSLATIONS = {
     failedToLoadItems: 'Elemente konnten nicht geladen werden: {message}',
     failedToUpdateItem: 'Element konnte nicht aktualisiert werden: {message}',
     failedToUpdateSubtasks: 'Teilaufgaben konnten nicht aktualisiert werden: {message}',
+    hideCompletedShoppingItems: 'Erledigte Einkaufsartikel ausblenden',
     icon: 'Symbol',
     iconBackgroundCss: 'Symbolhintergrund (CSS)',
     itemName: 'Name',
@@ -334,6 +337,7 @@ class TodoListCard extends LitElement {
       show_filter_menu: true,
       show_search_button: true,
       show_clear_button: true,
+      hide_completed_shopping_items: false,
       quick_add: false,
     };
   }
@@ -486,6 +490,7 @@ class TodoListCard extends LitElement {
       auto_complete_parent: false,
       show_search_button: true,
       show_clear_button: true,
+      hide_completed_shopping_items: false,
       quick_add: false,
       ...config
     };
@@ -774,12 +779,14 @@ class TodoListCard extends LitElement {
 
     const activeItems = allTasks.filter(t => t.status === 'needs_action').sort(sortFn);
     const completedItems = allTasks.filter(t => t.status === 'completed').sort(sortFn);
+    const hideCompletedShoppingItems = this._config.mode === 'shopping' && this._config.hide_completed_shopping_items === true;
+    const visibleCompletedItems = hideCompletedShoppingItems ? [] : completedItems;
 
     const isFrameless = this._config.card_background === 'none'; const headerPadding = isFrameless ? '6px 4px 12px 16px' : '6px 20px 12px 20px'; const contentPadding = isFrameless ? '0 4px 4px' : '0 12px 12px';
     let countText = this._config.mode === 'tasks'
-      ? this._t('completedTasks', { active: activeItems.length, completed: completedItems.length })
-      : this._t('completedItemsChecked', { active: activeItems.length, completed: completedItems.length });
-    if (this._searchQuery) { countText = this._t('resultsFound', { count: activeItems.length + completedItems.length }); }
+      ? this._t('completedTasks', { active: activeItems.length, completed: visibleCompletedItems.length })
+      : this._t('completedItemsChecked', { active: activeItems.length, completed: visibleCompletedItems.length });
+    if (this._searchQuery) { countText = this._t('resultsFound', { count: activeItems.length + visibleCompletedItems.length }); }
 
     return html`
       <ha-card style="background: ${this._config.card_background};">
@@ -844,9 +851,9 @@ class TodoListCard extends LitElement {
           ${this._error ? html`<div class="error-message" @click="${() => this._error = null}">${this._error}</div>` : ''}
           ${this._isLoading ? html`<div class="loading">${this._t('loading')}</div>` : ''}
           ${this._isAddAreaOpen ? this._renderAddForm() : ''}
-          ${allTasks.length === 0 && !this._isAddAreaOpen && !this._isLoading ? html`<div class="empty-list">${this._t('noItems')}</div>` : ''}
+          ${activeItems.length + visibleCompletedItems.length === 0 && !this._isAddAreaOpen && !this._isLoading ? html`<div class="empty-list">${this._t('noItems')}</div>` : ''}
           ${activeItems.map(item => this._renderItem(item))}
-          ${completedItems.map(item => this._renderItem(item))}
+          ${visibleCompletedItems.map(item => this._renderItem(item))}
         </div>
       </ha-card>
     `;
@@ -1354,6 +1361,7 @@ class TodoListCardEditor extends LitElement {
         <ha-formfield label="${this._t('showFilterMenu')}"><ha-switch .checked=${this._config.show_filter_menu !== false} @change=${this._showFilterMenuChanged}></ha-switch></ha-formfield>
         <ha-formfield label="${this._t('showSearchButton')}"><ha-switch .checked=${this._config.show_search_button !== false} @change=${this._showSearchButtonChanged}></ha-switch></ha-formfield>
         <ha-formfield label="${this._t('showClearButton')}"><ha-switch .checked=${this._config.show_clear_button !== false} @change=${this._showClearButtonChanged}></ha-switch></ha-formfield>
+        ${this._config.mode === 'shopping' ? html`<ha-formfield label="${this._t('hideCompletedShoppingItems')}"><ha-switch .checked=${this._config.hide_completed_shopping_items === true} @change=${this._hideCompletedShoppingItemsChanged}></ha-switch></ha-formfield>` : ''}
         <ha-formfield label="${this._t('enableQuickAdd')}"><ha-switch .checked=${this._config.quick_add === true} @change=${this._quickAddChanged}></ha-switch></ha-formfield>
       </div>
     `;
@@ -1377,6 +1385,7 @@ class TodoListCardEditor extends LitElement {
   _showFilterMenuChanged(ev) { this.configChanged({ ...this._config, show_filter_menu: ev.target.checked }); }
   _showSearchButtonChanged(ev) { this.configChanged({ ...this._config, show_search_button: ev.target.checked }); }
   _showClearButtonChanged(ev) { this.configChanged({ ...this._config, show_clear_button: ev.target.checked }); }
+  _hideCompletedShoppingItemsChanged(ev) { this.configChanged({ ...this._config, hide_completed_shopping_items: ev.target.checked }); }
   _quickAddChanged(ev) { this.configChanged({ ...this._config, quick_add: ev.target.checked }); }
   static get styles() {
     return css`
