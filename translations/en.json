@@ -61,6 +61,7 @@
   "shopping": "Shopping",
   "showClearButton": "Show Clear Button",
   "showFilterMenu": "Show Filter Menu",
+  "showIcon": "Show Icon",
   "showPriority": "Show Priority",
   "showSearchButton": "Show Search Button",
   "sortBy": "Sort By",
@@ -70,5 +71,16 @@
   "textColorCss": "Text Color (CSS)",
   "timeOptional": "Time (optional)",
   "title": "Title",
-  "useAnyCssBackground": "Use any CSS background. Set to 'none' for no padding."
+  "useAnyCssBackground": "Use any CSS background. Set to 'none' for no padding.",
+  "showTagHeadings": "Group by Tags / Category",
+  "tag": "Tag",
+  "tags": "Tags / Category",
+  "tagOrder": "Tag order",
+  "tagOrderHelp": "Comma-separated. Listed tags appear first; other tags remain alphabetical.",
+  "tagsOptional": "Tags / Category (comma separated)",
+  "untagged": "Untagged",
+  "checkboxPosition": "Checkbox Position",
+  "checkboxPositionLeft": "Left",
+  "checkboxPositionRight": "Right",
+  "status": "Status"
 }

@@ -17,8 +17,9 @@ Subscribe to Youtube channel: https://www.youtube.com/@My_Smart_Home
     *   **Shopping:** Manage lists with Quantities and clickable Links.
 *   **Subtasks:** Create nested subtasks for any item.
 *   **Visual Editor:** Supports the Home Assistant visual card editor, including mode, sorting, language selection, and default task icon.
-*   **Sorting:** Sort by Priority, Due Date, or Title (Ascending/Descending).
-*   **Search & Filters:** Optional search button, filter menu, and clear completed button.
+*   **Sorting:** Sort by Priority, Due Date, Tag, or Title (Ascending/Descending).
+*   **Tags / Categories:** Add comma-separated tags to tasks and shopping items, filter by tag, and optionally group tasks under tag headings.
+*   **Search & Filters:** Optional search button, filter menu, tag filters, and clear completed button.
 *   **Quick Add:** Optional rapid-entry mode for faster task capture.
 *   **Auto-complete Parent Tasks:** Automatically complete or reopen a parent task based on subtask status.
 *   **Default Task Icon:** Set a custom default icon for task mode.
@@ -65,7 +66,15 @@ sort_by: priority
 sort_order: asc
 default_task_icon: mdi:hammer
 language: auto
+show_icon: true
 show_priority: true
+show_tag_headings: true
+tag_order:
+  - Urgent
+  - Home
+  - Shopping
+  - Someday
+checkbox_position: right
 auto_complete_parent: false
 confirm_delete: true
 quick_add: false

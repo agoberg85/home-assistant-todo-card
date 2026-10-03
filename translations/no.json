@@ -61,6 +61,7 @@
   "shopping": "Handling",
   "showClearButton": "Vis knapp for sletting",
   "showFilterMenu": "Vis filtermeny",
+  "showIcon": "Vis ikon",
   "showPriority": "Vis prioritet",
   "showSearchButton": "Vis sokeknapp",
   "sortBy": "Sorter etter",
@@ -70,5 +71,16 @@
   "textColorCss": "Tekstfarge (CSS)",
   "timeOptional": "Tid (valgfritt)",
   "title": "Tittel",
-  "useAnyCssBackground": "Bruk valgfri CSS-bakgrunn. Sett til 'none' for ingen padding."
+  "useAnyCssBackground": "Bruk valgfri CSS-bakgrunn. Sett til 'none' for ingen padding.",
+  "showTagHeadings": "Grupper etter tagger / kategori",
+  "tag": "Tagg",
+  "tags": "Tagger / kategori",
+  "tagOrder": "Rekkefølge på tagger",
+  "tagOrderHelp": "Kommaseparert. Oppførte tagger vises først; andre tagger sorteres alfabetisk.",
+  "tagsOptional": "Tagger / kategori (kommaseparert)",
+  "untagged": "Uten tagg",
+  "checkboxPosition": "Plassering av avkryssing",
+  "checkboxPositionLeft": "Venstre",
+  "checkboxPositionRight": "Høyre",
+  "status": "Status"
 }

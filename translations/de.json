@@ -70,5 +70,17 @@
   "textColorCss": "Textfarbe (CSS)",
   "timeOptional": "Zeit (optional)",
   "title": "Titel",
-  "useAnyCssBackground": "Beliebigen CSS-Hintergrund verwenden. Fur keinen Innenabstand auf 'none' setzen."
+  "useAnyCssBackground": "Beliebigen CSS-Hintergrund verwenden. Fur keinen Innenabstand auf 'none' setzen.",
+  "showTagHeadings": "Nach Tags / Kategorie gruppieren",
+  "tag": "Tag",
+  "tags": "Tags / Kategorie",
+  "tagOrder": "Tag-Reihenfolge",
+  "tagOrderHelp": "Kommagetrennt. Aufgelistete Tags erscheinen zuerst; andere bleiben alphabetisch.",
+  "tagsOptional": "Tags / Kategorie (kommagetrennt)",
+  "untagged": "Ohne Tag",
+  "checkboxPosition": "Checkbox-Position",
+  "checkboxPositionLeft": "Links",
+  "checkboxPositionRight": "Rechts",
+  "showIcon": "Symbol anzeigen",
+  "status": "Status"
 }

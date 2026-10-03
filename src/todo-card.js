@@ -97,11 +97,23 @@ const FALLBACK_TRANSLATIONS = {
   shopping: 'Shopping',
   showClearButton: 'Show Clear Button',
   showFilterMenu: 'Show Filter Menu',
+  showIcon: 'Show Icon',
   showPriority: 'Show Priority',
   showSearchButton: 'Show Search Button',
+  showTagHeadings: 'Group by Tags',
   sortBy: 'Sort By',
   sortOrder: 'Sort Order',
   sortPriorityTitle: 'Priority: {priority}',
+  status: 'Status',
+  tag: 'Tag',
+  tagOrder: 'Tag order',
+  tagOrderHelp: 'Comma-separated. Listed tags appear first; other tags remain alphabetical.',
+  tags: 'Tags',
+  tagsOptional: 'Tags (comma separated)',
+  untagged: 'Untagged',
+  checkboxPosition: 'Checkbox Position',
+  checkboxPositionLeft: 'Left',
+  checkboxPositionRight: 'Right',
   tasks: 'Tasks',
   textColorCss: 'Text Color (CSS)',
   timeOptional: 'Time (optional)',
@@ -119,17 +131,17 @@ const BUILTIN_TRANSLATIONS = {
     addNewTask: 'Legg til ny oppgave...',
     addSubItem: 'Legg til deloppgave',
     ascending: 'Stigende',
-    autoCompleteParentTask: 'Fullfor foreldreoppgave automatisk',
+    autoCompleteParentTask: 'Fullfør foreldreoppgave automatisk',
     cancel: 'Avbryt',
     cardBackgroundCss: 'Kortbakgrunn (CSS)',
     cardColorCss: 'Kortfarge (CSS)',
-    clearCompletedItems: 'Slett fullforte elementer',
-    completed: 'Fullfort',
-    completedColorCss: 'Farge for fullfort (CSS)',
+    clearCompletedItems: 'Slett fullførte elementer',
+    completed: 'Fullført',
+    completedColorCss: 'Farge for fullført (CSS)',
     completedItemsChecked: '{active} varer · {completed} avhukede',
-    completedTasks: '{active} oppgaver · {completed} fullfort',
+    completedTasks: '{active} oppgaver · {completed} fullført',
     completedTextColorCss: 'Tekstfarge for fullfort (CSS)',
-    confirmBeforeDelete: 'Bekreft for sletting',
+    confirmBeforeDelete: 'Bekreft før sletting',
     confirmClearCompleted: 'Er du sikker pa at du vil slette alle {count} fullforte elementer?',
     confirmDeleteItem: 'Er du sikker pa at du vil slette "{item}"?',
     defaultTaskIcon: 'Standardikon for oppgaver',
@@ -151,7 +163,7 @@ const BUILTIN_TRANSLATIONS = {
     iconBackgroundCss: 'Ikonbakgrunn (CSS)',
     itemName: 'Navn',
     itemNameCannotBeEmpty: 'Navnet kan ikke vare tomt',
-    language: 'Sprak',
+    language: 'Språk',
     languageAuto: 'Automatisk (Home Assistant)',
     languageDe: 'Tysk',
     languageEn: 'Engelsk',
@@ -159,27 +171,39 @@ const BUILTIN_TRANSLATIONS = {
     linkOptional: 'Lenke (valgfritt)',
     loading: 'Laster...',
     mode: 'Modus',
-    newShoppingItem: 'Ny handlevare',
+    newShoppingItem: 'Ny vare',
     newTask: 'Ny oppgave',
     noItems: 'Ingen elementer',
     overdue: 'Forfalt',
     priority: 'Prioritet',
-    priorityHigh: 'Hoy',
+    priorityHigh: 'Høy',
     priorityLow: 'Lav',
     priorityMedium: 'Medium',
     priorityUrgent: 'Haster',
     qty: 'Antall',
     resultsFound: '{count} treff funnet',
     save: 'Lagre',
-    searchItems: 'Sok i elementer...',
+    searchItems: 'Søk i elementer...',
     shopping: 'Handling',
     showClearButton: 'Vis knapp for sletting',
     showFilterMenu: 'Vis filtermeny',
+    showIcon: 'Vis ikon',
     showPriority: 'Vis prioritet',
-    showSearchButton: 'Vis sokeknapp',
+    showSearchButton: 'Vis søkeknapp',
+    showTagHeadings: 'Grupper etter tagg',
     sortBy: 'Sorter etter',
     sortOrder: 'Sorteringsrekkefolge',
     sortPriorityTitle: 'Prioritet: {priority}',
+    status: 'Status',
+    tag: 'Tagg',
+    tagOrder: 'Rekkefølge på tagger',
+    tagOrderHelp: 'Kommaseparert. Oppførte tagger vises først; andre tagger sorteres alfabetisk.',
+    tags: 'Tagger',
+    tagsOptional: 'Tagger',
+    untagged: 'Uten tagg',
+    checkboxPosition: 'Plassering av avkryssing',
+    checkboxPositionLeft: 'Venstre',
+    checkboxPositionRight: 'Høyre',
     tasks: 'Oppgaver',
     textColorCss: 'Tekstfarge (CSS)',
     timeOptional: 'Tid (valgfritt)',
@@ -249,11 +273,23 @@ const BUILTIN_TRANSLATIONS = {
     shopping: 'Einkauf',
     showClearButton: 'Schaltflache zum Loschen anzeigen',
     showFilterMenu: 'Filtermenu anzeigen',
+    showIcon: 'Symbol anzeigen',
     showPriority: 'Prioritat anzeigen',
     showSearchButton: 'Suchschaltflache anzeigen',
+    showTagHeadings: 'Nach Tags / Kategorie gruppieren',
     sortBy: 'Sortieren nach',
     sortOrder: 'Sortierreihenfolge',
     sortPriorityTitle: 'Prioritat: {priority}',
+    status: 'Status',
+    tag: 'Tag',
+    tagOrder: 'Tag-Reihenfolge',
+    tagOrderHelp: 'Kommagetrennt. Aufgelistete Tags erscheinen zuerst; andere bleiben alphabetisch.',
+    tags: 'Tags / Kategorie',
+    tagsOptional: 'Tags / Kategorie (kommagetrennt)',
+    untagged: 'Ohne Tag',
+    checkboxPosition: 'Checkbox-Position',
+    checkboxPositionLeft: 'Links',
+    checkboxPositionRight: 'Rechts',
     tasks: 'Aufgaben',
     textColorCss: 'Textfarbe (CSS)',
     timeOptional: 'Zeit (optional)',
@@ -284,25 +320,6 @@ class TodoListCard extends LitElement {
       _editedTaskId: { state: true },
       _expandedTaskId: { state: true },
 
-      // Add/Edit inputs
-      _newItemSummary: { state: true },
-      _newItemDescription: { state: true },
-      _newItemPriority: { state: true },
-      _newItemIcon: { state: true },
-      _newItemLink: { state: true },
-      _newItemQuantity: { state: true },
-      _newItemDueDate: { state: true },
-      _newItemDueTime: { state: true },
-
-      _editSummary: { state: true },
-      _editDescription: { state: true },
-      _editPriority: { state: true },
-      _editIcon: { state: true },
-      _editLink: { state: true },
-      _editQuantity: { state: true },
-      _editDueDate: { state: true },
-      _editDueTime: { state: true },
-
       _isLoading: { state: true },
       _error: { state: true },
       _translations: { state: true },
@@ -329,7 +346,11 @@ class TodoListCard extends LitElement {
       completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR,
       default_task_icon: DEFAULT_TASK_ICON,
       language: DEFAULT_LANGUAGE,
+      show_icon: true,
       show_priority: true,
+      show_tag_headings: false,
+      tag_order: [],
+      checkbox_position: 'right',
       confirm_delete: true,
       show_filter_menu: true,
       show_search_button: true,
@@ -351,7 +372,7 @@ class TodoListCard extends LitElement {
         entity_id: this._config.entity
       });
       if (!skipFetch) {
-        this.fetchTodoItems();
+        this._queuePostMutationRefresh();
       }
     } catch (err) {
       console.error('Error updating task metadata:', err);
@@ -430,8 +451,11 @@ class TodoListCard extends LitElement {
     this._searchQuery = '';
     this._translations = FALLBACK_TRANSLATIONS;
     this._activeLanguage = 'en';
+    this._postMutationRefreshTimeout = null;
+    this._searchInputTimeout = null;
+    this._fetchRequestId = 0;
     // Default filters (will be overwritten by loadFilters if saved data exists)
-    this._filters = { active: true, overdue: true, completed: true };
+    this._filters = { active: true, overdue: true, completed: true, tags: {} }
     this._resetNewItemInputs();
     this._resetEditInputs();
     this._boundClickListener = this._handleOutsideClick.bind(this);
@@ -445,6 +469,9 @@ class TodoListCard extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     document.removeEventListener('click', this._boundClickListener);
+    this._clearPostMutationRefresh();
+    this._clearSearchInputTimeout();
+    this._fetchRequestId++;
   }
 
   updated(changedProperties) {
@@ -460,11 +487,50 @@ class TodoListCard extends LitElement {
   }
 
   _resetNewItemInputs() {
-    this._newItemSummary = ''; this._newItemDescription = ''; this._newItemPriority = DEFAULT_PRIORITY; this._newItemIcon = this._getDefaultItemIcon(); this._newItemLink = ''; this._newItemQuantity = ''; this._newItemDueDate = ''; this._newItemDueTime = '';
+    this._newItemSummary = ''; this._newItemDescription = ''; this._newItemPriority = DEFAULT_PRIORITY; this._newItemIcon = this._getDefaultItemIcon(); this._newItemLink = ''; this._newItemQuantity = ''; this._newItemDueDate = ''; this._newItemDueTime = ''; this._newItemTags = '';
   }
 
   _resetEditInputs() {
-    this._editSummary = ''; this._editDescription = ''; this._editPriority = DEFAULT_PRIORITY; this._editIcon = this._getDefaultItemIcon(); this._editLink = ''; this._editQuantity = ''; this._editDueDate = ''; this._editDueTime = '';
+    this._editSummary = ''; this._editDescription = ''; this._editPriority = DEFAULT_PRIORITY; this._editIcon = this._getDefaultItemIcon(); this._editLink = ''; this._editQuantity = ''; this._editDueDate = ''; this._editDueTime = ''; this._editTags = '';
+  }
+
+  _clearPostMutationRefresh() {
+    if (this._postMutationRefreshTimeout) {
+      clearTimeout(this._postMutationRefreshTimeout);
+      this._postMutationRefreshTimeout = null;
+    }
+  }
+
+
+  _queuePostMutationRefresh(delay = 1200) {
+    this._clearPostMutationRefresh();
+    this._postMutationRefreshTimeout = setTimeout(() => {
+      this._postMutationRefreshTimeout = null;
+      this.fetchTodoItems();
+    }, delay);
+  }
+
+  _clearSearchInputTimeout() {
+    if (this._searchInputTimeout) {
+      clearTimeout(this._searchInputTimeout);
+      this._searchInputTimeout = null;
+    }
+  }
+
+  _setDraftValue(property, value, shouldUpdate = false) {
+    this[property] = value;
+    if (shouldUpdate) {
+      this.requestUpdate();
+    }
+  }
+
+  _handleSearchInput(ev) {
+    const value = ev.target.value;
+    this._clearSearchInputTimeout();
+    this._searchInputTimeout = setTimeout(() => {
+      this._searchInputTimeout = null;
+      this._searchQuery = value;
+    }, 180);
   }
 
   setConfig(config) {
@@ -479,7 +545,11 @@ class TodoListCard extends LitElement {
       completed_text_color: DEFAULT_COMPLETED_TEXT_COLOR,
       default_task_icon: DEFAULT_TASK_ICON,
       language: DEFAULT_LANGUAGE,
+      show_icon: true,
       show_priority: true,
+      show_tag_headings: false,
+      tag_order: [],
+      checkbox_position: 'right',
       confirm_delete: true,
       sort_by: 'priority',
       sort_order: 'asc',
@@ -500,10 +570,10 @@ class TodoListCard extends LitElement {
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
-        this._filters = JSON.parse(stored);
+        this._filters = { active: true, overdue: true, completed: true, tags: {}, ...JSON.parse(stored) };
       } catch (e) {
         console.warn("Failed to parse stored filters, resetting to default");
-        this._filters = { active: true, overdue: true, completed: true };
+        this._filters = { active: true, overdue: true, completed: true, tags: {} };
       }
     }
   }
@@ -525,6 +595,7 @@ class TodoListCard extends LitElement {
     const oldEntity = oldHass.states[this._config.entity];
     const newEntity = hass.states[this._config.entity];
     if (!oldEntity || oldEntity.last_updated !== newEntity?.last_updated || oldEntity.attributes?.items !== newEntity?.attributes?.items) {
+      this._clearPostMutationRefresh();
       this.fetchTodoItems();
     }
   }
@@ -533,8 +604,14 @@ class TodoListCard extends LitElement {
     return this._config?.default_task_icon || DEFAULT_TASK_ICON;
   }
 
-  _getDefaultItemIcon(mode = this._config?.mode) {
-    return mode === 'tasks' ? this._getDefaultTaskIcon() : DEFAULT_ICON;
+  _getDefaultItemIcon() {
+    return this._getDefaultTaskIcon();
+  }
+
+  _getItemIcon(metadata) {
+    if (this._config?.show_icon === false) return '';
+    const icon = metadata?.icon;
+    return typeof icon === 'string' && icon.trim() ? icon.trim() : this._getDefaultItemIcon();
   }
 
   _getResolvedLanguage() {
@@ -575,7 +652,9 @@ class TodoListCard extends LitElement {
   async fetchTodoItems() {
     if (!this._hass || !this._config.entity) return;
 
-    // Only show loading spinner if we have no data at all (initial load)
+    const requestId = ++this._fetchRequestId;
+    const entityId = this._config.entity;
+
     if (!this._tasks || this._tasks.length === 0) {
       this._isLoading = true;
     }
@@ -584,28 +663,34 @@ class TodoListCard extends LitElement {
     try {
       let items;
       try {
-        items = await this._hass.callWS({ type: 'todo/item/list', entity_id: this._config.entity });
+        items = await this._hass.callWS({ type: 'todo/item/list', entity_id: entityId });
       } catch (err) {
         if (err.code === 'unknown_command') {
-          items = await this._hass.callWS({ type: 'call_service', domain: 'todo', service: 'get_items', service_data: { entity_id: this._config.entity }, return_response: true });
-          items = items.response[this._config.entity];
-        } else throw err;
+          items = await this._hass.callWS({ type: 'call_service', domain: 'todo', service: 'get_items', service_data: { entity_id: entityId }, return_response: true });
+          items = items.response[entityId];
+        } else {
+          throw err;
+        }
       }
+      if (requestId !== this._fetchRequestId) return;
       this._tasks = (items.items || []).map(task => ({ ...task, _cachedMetadata: this._parseTaskMetadata(task.description) }));
     } catch (err) {
+      if (requestId !== this._fetchRequestId) return;
       console.error('Error fetching todo items:', err);
       this._error = this._t('failedToLoadItems', { message: err.message });
     } finally {
-      this._isLoading = false;
+      if (requestId === this._fetchRequestId) {
+        this._isLoading = false;
+      }
     }
   }
 
   _parseTaskMetadata(desc) {
     try {
       const data = JSON.parse(desc || '{}');
-      return { description: this._sanitizeText(data.description ?? ''), priority: this._sanitizePriority(data.priority ?? DEFAULT_PRIORITY), icon: typeof data.icon === 'string' ? data.icon : this._getDefaultItemIcon(), link: this._sanitizeUrl(data.link ?? ''), quantity: this._sanitizeText(data.quantity ?? ''), subtasks: Array.isArray(data.subtasks) ? data.subtasks : [] };
+      return { description: this._sanitizeText(data.description ?? ''), priority: this._sanitizePriority(data.priority ?? DEFAULT_PRIORITY), icon: typeof data.icon === 'string' ? data.icon : '', link: this._sanitizeUrl(data.link ?? ''), quantity: this._sanitizeText(data.quantity ?? ''), tags: this._sanitizeTags(data.tags ?? data.tag ?? data.category ?? []), subtasks: Array.isArray(data.subtasks) ? data.subtasks : [] };
     } catch {
-      return { description: '', priority: DEFAULT_PRIORITY, icon: this._getDefaultItemIcon(), link: '', quantity: '', subtasks: [] };
+      return { description: '', priority: DEFAULT_PRIORITY, icon: '', link: '', quantity: '', tags: [], subtasks: [] };
     }
   }
 
@@ -621,17 +706,40 @@ class TodoListCard extends LitElement {
     return PRIORITY_INFO[this._sanitizePriority(priority)]?.rank ?? PRIORITY_INFO[DEFAULT_PRIORITY].rank;
   }
   _sanitizeText(txt) { return typeof txt === 'string' ? txt.replace(/[<>"']/g, '') : ''; }
+  _sanitizeTags(value) {
+    const rawTags = Array.isArray(value) ? value : String(value || '').split(',');
+    return [...new Set(rawTags.map(tag => this._sanitizeText(String(tag).trim())).filter(Boolean))];
+  }
+  _formatTags(tags) { return this._sanitizeTags(tags).join(', '); }
+  _getPrimaryTag(item) { return item._cachedMetadata?.tags?.[0] || this._t('untagged'); }
+  _getAvailableTags(items = this._tasks) {
+    return [...new Set((items || []).flatMap(item => item._cachedMetadata?.tags || []))].sort((a, b) => a.localeCompare(b));
+  }
+  _toggleTagInInput(value, tag) {
+    const tags = this._sanitizeTags(value);
+    const nextTags = tags.includes(tag) ? tags.filter(existingTag => existingTag !== tag) : [...tags, tag];
+    return this._formatTags(nextTags);
+  }
+  _isTagAllowed(tags) {
+    const availableTags = this._getAvailableTags();
+    if (!availableTags.length) return true;
+    const tagFilters = this._filters.tags || {};
+    const itemTags = tags?.length ? tags : [this._t('untagged')];
+    return itemTags.some(tag => tagFilters[tag] !== false);
+  }
   _sanitizeUrl(url) { try { const parsed = new URL(url.startsWith('http') ? url : `https://${url}`); if (!['http:', 'https:'].includes(parsed.protocol)) { return ''; } return parsed.href; } catch { return ''; } }
 
   async _handleStatusUpdate(ev, task) {
     ev.stopPropagation();
-    try { await this._hass.callService("todo", "update_item", { item: task.uid, status: task.status === "needs_action" ? "completed" : "needs_action" }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error updating status:', err); this._error = this._t('failedToUpdateItem', { message: err.message }); this.fetchTodoItems(); }
+    try { await this._hass.callService("todo", "update_item", { item: task.uid, status: task.status === "needs_action" ? "completed" : "needs_action" }, { entity_id: this._config.entity }); this._queuePostMutationRefresh(); } catch (err) { console.error('Error updating status:', err); this._error = this._t('failedToUpdateItem', { message: err.message }); this.fetchTodoItems(); }
   }
 
   async _handleAddItem() {
     if (!this._newItemSummary.trim()) { this._error = this._t('itemNameCannotBeEmpty'); return; }
     let metadata = {};
     if (this._newItemDescription.trim()) metadata.description = this._sanitizeText(this._newItemDescription.trim());
+    const newTags = this._sanitizeTags(this._newItemTags);
+    if (newTags.length) metadata.tags = newTags;
 
     // Config mode handling for metadata
     if (this._config.mode === 'tasks') {
@@ -652,14 +760,18 @@ class TodoListCard extends LitElement {
         setTimeout(() => {
           const addArea = this.shadowRoot.querySelector('.add-edit-area');
           if (addArea) {
-            const titleInput = addArea.querySelector('ha-input');
-            if (titleInput) titleInput.focus();
+            const titleInput = addArea.querySelector('input');
+            if (titleInput) {
+              titleInput.value = '';
+              titleInput.focus();
+            }
           }
         }, 50);
       } else {
         this._isAddAreaOpen = false;
       }
-    } catch (err) { console.error('Error adding item:', err); this._error = this._t('failedToAddItem', { message: err.message }); } finally { this.fetchTodoItems(); }
+    } catch (err) { console.error('Error adding item:', err); this._error = this._t('failedToAddItem', { message: err.message }); this.fetchTodoItems(); return; }
+    this._queuePostMutationRefresh();
   }
 
   async _handleSaveEdit(task) {
@@ -667,6 +779,8 @@ class TodoListCard extends LitElement {
     const originalEditedTaskId = this._editedTaskId; this._editedTaskId = null;
     const originalMetadata = task._cachedMetadata || {}; let metadata = { subtasks: originalMetadata.subtasks || [] };
     if (this._editDescription.trim()) metadata.description = this._sanitizeText(this._editDescription.trim());
+    const editTags = this._sanitizeTags(this._editTags);
+    if (editTags.length) metadata.tags = editTags;
 
     // Config mode handling for metadata
     if (this._config.mode === 'tasks') {
@@ -680,20 +794,20 @@ class TodoListCard extends LitElement {
 
     const serviceData = { item: task.uid, rename: this._sanitizeText(this._editSummary.trim()), description: JSON.stringify(metadata) };
     if (this._editDueDate.trim()) { if (this._editDueTime.trim()) { serviceData.due_datetime = `${this._editDueDate} ${this._editDueTime}:00`; } else { serviceData.due_date = this._editDueDate; } } else { serviceData.due_date = null; }
-    try { await this._hass.callService("todo", "update_item", serviceData, { entity_id: this._config.entity }); this._resetEditInputs(); } catch (err) { console.error('Error updating item:', err); this._error = this._t('failedToUpdateItem', { message: err.message }); this._editedTaskId = originalEditedTaskId; } finally { this.fetchTodoItems(); }
+    try { await this._hass.callService("todo", "update_item", serviceData, { entity_id: this._config.entity }); this._resetEditInputs(); this._queuePostMutationRefresh(); } catch (err) { console.error('Error updating item:', err); this._error = this._t('failedToUpdateItem', { message: err.message }); this._editedTaskId = originalEditedTaskId; this.fetchTodoItems(); }
   }
 
   async _handleDeleteItem(ev, task) {
     ev.stopPropagation(); const shouldDelete = this._config.confirm_delete ? confirm(this._t('confirmDeleteItem', { item: task.summary })) : true; if (!shouldDelete) return;
     this._editedTaskId = null; this._expandedTaskId = null;
-    try { await this._hass.callService("todo", "remove_item", { item: [task.uid] }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error deleting item:', err); this._error = `Failed to delete item: ${err.message}`; }
+    try { await this._hass.callService("todo", "remove_item", { item: [task.uid] }, { entity_id: this._config.entity }); this._queuePostMutationRefresh(); } catch (err) { console.error('Error deleting item:', err); this._error = `Failed to delete item: ${err.message}`; this.fetchTodoItems(); }
   }
 
   async _handleClearCompleted() {
     const completedItems = this._tasks.filter(t => t.status === 'completed'); if (completedItems.length === 0) return;
     const shouldClear = confirm(this._t('confirmClearCompleted', { count: completedItems.length })); if (!shouldClear) return;
     const uidsToRemove = completedItems.map(t => t.uid);
-    try { await this._hass.callService("todo", "remove_item", { item: uidsToRemove }, { entity_id: this._config.entity }); this.fetchTodoItems(); } catch (err) { console.error('Error clearing completed items:', err); this._error = this._t('failedToClearCompleted', { message: err.message }); }
+    try { await this._hass.callService("todo", "remove_item", { item: uidsToRemove }, { entity_id: this._config.entity }); this._queuePostMutationRefresh(); } catch (err) { console.error('Error clearing completed items:', err); this._error = this._t('failedToClearCompleted', { message: err.message }); this.fetchTodoItems(); }
   }
 
   _handleOpenLink(ev, link) { ev.stopPropagation(); const sanitized = this._sanitizeUrl(link); if (sanitized) { window.open(sanitized, '_blank', 'noopener,noreferrer'); } }
@@ -703,13 +817,30 @@ class TodoListCard extends LitElement {
       const task = this._tasks.find(t => t.uid === taskUid);
       if (task) {
         this._editedTaskId = taskUid; this._expandedTaskId = null; this._editSummary = task.summary; const metadata = task._cachedMetadata || {};
-        this._editDescription = metadata.description ?? ''; this._editPriority = metadata.priority ?? DEFAULT_PRIORITY; this._editIcon = metadata.icon ?? this._getDefaultItemIcon(); this._editLink = metadata.link ?? ''; this._editQuantity = metadata.quantity ?? '';
+        this._editDescription = metadata.description ?? ''; this._editPriority = metadata.priority ?? DEFAULT_PRIORITY; this._editIcon = this._getItemIcon(metadata); this._editLink = metadata.link ?? ''; this._editQuantity = metadata.quantity ?? ''; this._editTags = this._formatTags(metadata.tags);
         if (task.due) { try { const date = new Date(task.due); this._editDueDate = date.toISOString().split('T')[0]; const timeStr = task.due.split('T')[1]; if (timeStr && !timeStr.startsWith('00:00:00')) { const hours = String(date.getHours()).padStart(2, '0'); const minutes = String(date.getMinutes()).padStart(2, '0'); this._editDueTime = `${hours}:${minutes}`; } else { this._editDueTime = ''; } } catch (e) { console.error('Error parsing due date:', e); this._editDueDate = ''; this._editDueTime = ''; } } else { this._editDueDate = ''; this._editDueTime = ''; }
       }
     }
   }
 
-  _handleKeyDown(ev, action) { if (ev.key === 'Enter') { ev.preventDefault(); action(); } else if (ev.key === 'Escape') { ev.preventDefault(); if (this._isAddAreaOpen) { this._isAddAreaOpen = false; this._resetNewItemInputs(); } else if (this._editedTaskId) { this._editedTaskId = null; this._resetEditInputs(); } else if (this._expandedTaskId) { this._expandedTaskId = null; } } }
+  _handleKeyDown(ev, action) {
+    if (ev.isComposing) return;
+    if (ev.key === 'Enter' && ev.target.tagName !== 'TEXTAREA') {
+      ev.preventDefault();
+      action();
+    } else if (ev.key === 'Escape') {
+      ev.preventDefault();
+      if (this._isAddAreaOpen) {
+        this._isAddAreaOpen = false;
+        this._resetNewItemInputs();
+      } else if (this._editedTaskId) {
+        this._editedTaskId = null;
+        this._resetEditInputs();
+      } else if (this._expandedTaskId) {
+        this._expandedTaskId = null;
+      }
+    }
+  }
   _getDueDateStatus(dueDateStr) { if (!dueDateStr) return null; const today = new Date(); const dueDate = new Date(dueDateStr); const todayStr = today.toISOString().split('T')[0]; const dueStr = dueDateStr.split('T')[0]; if (dueStr < todayStr) return 'overdue'; if (dueStr === todayStr) return 'due-today'; return null; }
   _getPriorityInfo(priority) {
     const option = PRIORITY_INFO[this._sanitizePriority(priority)];
@@ -723,9 +854,58 @@ class TodoListCard extends LitElement {
     this._saveFilters();
   }
 
+  _toggleTagFilter(tag) {
+    const tags = { ...(this._filters.tags || {}) };
+    tags[tag] = tags[tag] === false;
+    this._filters = { ...this._filters, tags };
+    this._saveFilters();
+  }
+
+  _renderGroupedItems(items) {
+    const groups = new Map();
+    items.forEach(item => {
+      const tag = this._getPrimaryTag(item);
+      if (!groups.has(tag)) groups.set(tag, []);
+      groups.get(tag).push(item);
+    });
+    const untaggedLabel = this._t("untagged");
+    const locale = this._hass?.locale?.language || undefined;
+    const configuredOrder = Array.isArray(this._config.tag_order) ? this._config.tag_order : [];
+    const tagRanks = new Map();
+    configuredOrder.forEach(tag => {
+      const normalizedTag = String(tag || "").trim().toLocaleLowerCase(locale);
+      if (normalizedTag && !tagRanks.has(normalizedTag)) {
+        tagRanks.set(normalizedTag, tagRanks.size);
+      }
+    });
+    const sortedGroups = [...groups.entries()].sort(([tagA], [tagB]) => {
+      const aIsUntagged = tagA === untaggedLabel;
+      const bIsUntagged = tagB === untaggedLabel;
+      if (aIsUntagged && !bIsUntagged) return 1;
+      if (!aIsUntagged && bIsUntagged) return -1;
+
+      const rankA = tagRanks.get(tagA.toLocaleLowerCase(locale));
+      const rankB = tagRanks.get(tagB.toLocaleLowerCase(locale));
+      if (rankA !== undefined && rankB !== undefined) return rankA - rankB;
+      if (rankA !== undefined) return -1;
+      if (rankB !== undefined) return 1;
+      return tagA.localeCompare(tagB, locale, { sensitivity: "base" });
+    });
+    return sortedGroups.map(([tag, groupItems]) => html`
+      <section class="tag-group">
+        <div class="tag-heading">
+          <span>${tag}</span>
+          <span>${groupItems.length}</span>
+        </div>
+        ${groupItems.map(item => this._renderItem(item))}
+      </section>
+    `);
+  }
+
   _toggleSearch() {
     this._isSearchOpen = !this._isSearchOpen;
     if (!this._isSearchOpen) {
+      this._clearSearchInputTimeout();
       this._searchQuery = '';
     } else {
       // Focus attempt after render
@@ -748,7 +928,9 @@ class TodoListCard extends LitElement {
       allTasks = allTasks.filter(task => {
         // Search Filtering
         if (this._searchQuery) {
-          if (!task.summary.toLowerCase().includes(this._searchQuery.toLowerCase())) {
+          const metadata = task._cachedMetadata || {};
+          const searchable = [task.summary, metadata.description, ...(metadata.tags || [])].join(' ').toLowerCase();
+          if (!searchable.includes(this._searchQuery.toLowerCase())) {
             return false;
           }
         }
@@ -762,18 +944,21 @@ class TodoListCard extends LitElement {
         if (isCompleted && !this._filters.completed) return false;
         if (isOverdue && !this._filters.overdue) return false;
         if (isActive && !this._filters.active) return false;
+        if (!this._isTagAllowed(task._cachedMetadata?.tags || [])) return false;
         return true;
       });
     }
 
     const sortFn = (a, b) => {
       const sortBy = this._config.sort_by || 'priority'; const sortOrder = this._config.sort_order || 'asc'; const direction = sortOrder === 'desc' ? -1 : 1; let valA, valB;
-      switch (sortBy) { case 'duedate': valA = a.due ? new Date(a.due).getTime() : Infinity; valB = b.due ? new Date(b.due).getTime() : Infinity; break; case 'priority': valA = this._getPriorityRank(a._cachedMetadata?.priority ?? DEFAULT_PRIORITY); valB = this._getPriorityRank(b._cachedMetadata?.priority ?? DEFAULT_PRIORITY); break; case 'title': default: valA = a.summary?.toLowerCase() || ''; valB = b.summary?.toLowerCase() || ''; break; }
+      switch (sortBy) { case 'duedate': valA = a.due ? new Date(a.due).getTime() : Infinity; valB = b.due ? new Date(b.due).getTime() : Infinity; break; case 'priority': valA = this._getPriorityRank(a._cachedMetadata?.priority ?? DEFAULT_PRIORITY); valB = this._getPriorityRank(b._cachedMetadata?.priority ?? DEFAULT_PRIORITY); break; case 'tag': valA = this._getPrimaryTag(a).toLowerCase(); valB = this._getPrimaryTag(b).toLowerCase(); break; case 'title': default: valA = a.summary?.toLowerCase() || ''; valB = b.summary?.toLowerCase() || ''; break; }
       if (valA < valB) return -1 * direction; if (valA > valB) return 1 * direction; return 0;
     };
 
     const activeItems = allTasks.filter(t => t.status === 'needs_action').sort(sortFn);
     const completedItems = allTasks.filter(t => t.status === 'completed').sort(sortFn);
+    const visibleItems = [...activeItems, ...completedItems];
+    const availableTags = this._getAvailableTags();
 
     const isFrameless = this._config.card_background === 'none'; const headerPadding = isFrameless ? '6px 4px 12px 16px' : '6px 20px 12px 20px'; const contentPadding = isFrameless ? '0 4px 4px' : '0 12px 12px';
     let countText = this._config.mode === 'tasks'
@@ -806,6 +991,7 @@ class TodoListCard extends LitElement {
                 </ha-icon-button>
                 ${this._isFilterOpen ? html`
                 <div class="filter-dropdown" @click="${(e) => e.stopPropagation()}">
+                    <div class="filter-section-title">${this._t('status')}</div>
                     <div class="filter-option" @click="${() => this._toggleFilter('active')}">
                         <ha-icon icon="${this._filters.active ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
                         <span>${this._t('active')}</span>
@@ -818,6 +1004,16 @@ class TodoListCard extends LitElement {
                         <ha-icon icon="${this._filters.completed ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon>
                         <span>${this._t('completed')}</span>
                     </div>
+                    ${availableTags.length ? html`
+                      <div class="filter-divider"></div>
+                      <div class="filter-section-title">${this._t('tags')}</div>
+                      ${availableTags.map(tag => html`
+                        <div class="filter-option" @click="${() => this._toggleTagFilter(tag)}">
+                          <ha-icon icon="${this._filters.tags?.[tag] === false ? 'mdi:checkbox-blank-outline' : 'mdi:checkbox-marked'}"></ha-icon>
+                          <span>${tag}</span>
+                        </div>
+                      `)}
+                    ` : ''}
                 </div>
                 ` : ''}
             </div>
@@ -832,10 +1028,10 @@ class TodoListCard extends LitElement {
                 id="search-input"
                 placeholder="${this._t('searchItems')}" 
                 .value="${this._searchQuery}" 
-                @input="${(e) => this._searchQuery = e.target.value}"
+                @input="${this._handleSearchInput}"
                 iconTrailing
             >
-                <ha-icon slot="trailingIcon" icon="mdi:close" @click="${() => { this._searchQuery = ''; this._isSearchOpen = false; }}" style="cursor: pointer;"></ha-icon>
+                <ha-icon slot="trailingIcon" icon="mdi:close" @click="${() => { this._clearSearchInputTimeout(); this._searchQuery = ''; this._isSearchOpen = false; }}" style="cursor: pointer;"></ha-icon>
             </ha-input>
         </div>
         ` : ''}
@@ -845,8 +1041,7 @@ class TodoListCard extends LitElement {
           ${this._isLoading ? html`<div class="loading">${this._t('loading')}</div>` : ''}
           ${this._isAddAreaOpen ? this._renderAddForm() : ''}
           ${allTasks.length === 0 && !this._isAddAreaOpen && !this._isLoading ? html`<div class="empty-list">${this._t('noItems')}</div>` : ''}
-          ${activeItems.map(item => this._renderItem(item))}
-          ${completedItems.map(item => this._renderItem(item))}
+          ${this._config.show_tag_headings ? this._renderGroupedItems(visibleItems) : html`${activeItems.map(item => this._renderItem(item))}${completedItems.map(item => this._renderItem(item))}`}
         </div>
       </ha-card>
     `;
@@ -895,23 +1090,44 @@ class TodoListCard extends LitElement {
     `;
   }
 
+  _renderTagField(value, onInput, onTagSelect) {
+    const availableTags = this._getAvailableTags();
+    const selectedTags = this._sanitizeTags(value);
+    return html`
+      <div class="tag-field">
+        ${this._renderNativeField({ label: this._t('tagsOptional'), value, onInput })}
+        ${availableTags.length ? html`
+          <div class="tag-suggestions">
+            ${availableTags.map(tag => html`
+              <button
+                type="button"
+                class="tag-suggestion ${selectedTags.includes(tag) ? 'selected' : ''}"
+                @click=${(e) => { e.preventDefault(); e.stopPropagation(); onTagSelect(tag); }}
+              >#${tag}</button>
+            `)}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
   _renderAddTaskForm() {
     if (this._config.quick_add) {
       return html`<div class="add-edit-area rapid-add" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
-          ${this._renderNativeField({ label: this._t('addNewTask'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}
+          ${this._renderNativeField({ label: this._t('addNewTask'), value: this._newItemSummary, onInput: e => this._setDraftValue('_newItemSummary', e.target.value) })}
           <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button>
       </div>`;
     }
-    return html`<div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}"><h3>${this._t('newTask')}</h3>${this._renderNativeField({ label: this._t('title'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._newItemDescription, onInput: e => this._newItemDescription = e.target.value, rows: 3 })}<div class="row row-2">${this._renderPrioritySelect(this._newItemPriority, e => this._newItemPriority = e.target.value)}<div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker></div></div><div class="row row-2">${this._renderNativeField({ label: this._t('dueDate'), value: this._newItemDueDate, onInput: e => this._newItemDueDate = e.target.value, type: 'date' })}${this._renderNativeField({ label: this._t('timeOptional'), value: this._newItemDueTime, onInput: e => this._newItemDueTime = e.target.value, type: 'time' })}</div><div class="buttons"><mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button><mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button></div></div>`;
+    return html`<div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}"><h3>${this._t('newTask')}</h3>${this._renderNativeField({ label: this._t('title'), value: this._newItemSummary, onInput: e => this._setDraftValue('_newItemSummary', e.target.value) })}${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._newItemDescription, onInput: e => this._setDraftValue('_newItemDescription', e.target.value), rows: 3 })}${this._renderTagField(this._newItemTags, e => this._setDraftValue('_newItemTags', e.target.value), tag => this._setDraftValue('_newItemTags', this._toggleTagInInput(this._newItemTags, tag), true))}<div class="row row-2">${this._renderPrioritySelect(this._newItemPriority, e => this._setDraftValue('_newItemPriority', e.target.value))}<div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._newItemIcon}" @value-changed="${e => this._setDraftValue('_newItemIcon', e.detail.value)}"></ha-icon-picker></div></div><div class="row row-2">${this._renderNativeField({ label: this._t('dueDate'), value: this._newItemDueDate, onInput: e => this._setDraftValue('_newItemDueDate', e.target.value), type: 'date' })}${this._renderNativeField({ label: this._t('timeOptional'), value: this._newItemDueTime, onInput: e => this._setDraftValue('_newItemDueTime', e.target.value), type: 'time' })}</div><div class="buttons"><mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button><mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button></div></div>`;
   }
   _renderEditTaskForm(task) {
-    return html`<div class="add-edit-area edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleSaveEdit(task))}"><h3>${this._t('editTask')}</h3>${this._renderNativeField({ label: this._t('title'), value: this._editSummary, onInput: e => this._editSummary = e.target.value })}${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._editDescription, onInput: e => this._editDescription = e.target.value, rows: 3 })}<div class="row row-2">${this._renderPrioritySelect(this._editPriority, e => this._editPriority = e.target.value)}<div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._editIcon}" @value-changed="${e => this._editIcon = e.detail.value}"></ha-icon-picker></div></div><div class="row row-2">${this._renderNativeField({ label: this._t('dueDate'), value: this._editDueDate, onInput: e => this._editDueDate = e.target.value, type: 'date' })}${this._renderNativeField({ label: this._t('timeOptional'), value: this._editDueTime, onInput: e => this._editDueTime = e.target.value, type: 'time' })}</div><div class="buttons"><mwc-button @click="${(e) => this._handleDeleteItem(e, task)}" class="btn btn-delete">${this._t('delete')}</mwc-button><div style="flex-grow: 1;"></div><mwc-button @click="${() => { this._editedTaskId = null; this._resetEditInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button><mwc-button @click="${() => this._handleSaveEdit(task)}" raised class="btn btn-add">${this._t('save')}</mwc-button></div></div>`;
+    return html`<div class="add-edit-area edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleSaveEdit(task))}"><h3>${this._t('editTask')}</h3>${this._renderNativeField({ label: this._t('title'), value: this._editSummary, onInput: e => this._setDraftValue('_editSummary', e.target.value) })}${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._editDescription, onInput: e => this._setDraftValue('_editDescription', e.target.value), rows: 3 })}${this._renderTagField(this._editTags, e => this._setDraftValue('_editTags', e.target.value), tag => this._setDraftValue('_editTags', this._toggleTagInInput(this._editTags, tag), true))}<div class="row row-2">${this._renderPrioritySelect(this._editPriority, e => this._setDraftValue('_editPriority', e.target.value))}<div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._editIcon}" @value-changed="${e => this._setDraftValue('_editIcon', e.detail.value)}"></ha-icon-picker></div></div><div class="row row-2">${this._renderNativeField({ label: this._t('dueDate'), value: this._editDueDate, onInput: e => this._setDraftValue('_editDueDate', e.target.value), type: 'date' })}${this._renderNativeField({ label: this._t('timeOptional'), value: this._editDueTime, onInput: e => this._setDraftValue('_editDueTime', e.target.value), type: 'time' })}</div><div class="buttons"><mwc-button @click="${(e) => this._handleDeleteItem(e, task)}" class="btn btn-delete">${this._t('delete')}</mwc-button><div style="flex-grow: 1;"></div><mwc-button @click="${() => { this._editedTaskId = null; this._resetEditInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button><mwc-button @click="${() => this._handleSaveEdit(task)}" raised class="btn btn-add">${this._t('save')}</mwc-button></div></div>`;
   }
   _renderAddShoppingItemForm() {
     if (this._config.quick_add) {
       return html`
       <div class="add-edit-area rapid-add" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
-          ${this._renderNativeField({ label: this._t('addItem'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}
+          ${this._renderNativeField({ label: this._t('addItem'), value: this._newItemSummary, onInput: e => this._setDraftValue('_newItemSummary', e.target.value) })}
           <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button>
       </div>`;
     }
@@ -919,12 +1135,13 @@ class TodoListCard extends LitElement {
     <div class="add-edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleAddItem())}">
         <h3>${this._t('newShoppingItem')}</h3>
         <div class="row row-2">
-            ${this._renderNativeField({ label: this._t('itemName'), value: this._newItemSummary, onInput: e => this._newItemSummary = e.target.value })}
-            ${this._renderNativeField({ label: this._t('qty'), value: this._newItemQuantity, onInput: e => this._newItemQuantity = e.target.value, type: 'number', min: '1' })}
+            ${this._renderNativeField({ label: this._t('itemName'), value: this._newItemSummary, onInput: e => this._setDraftValue('_newItemSummary', e.target.value) })}
+            ${this._renderNativeField({ label: this._t('qty'), value: this._newItemQuantity, onInput: e => this._setDraftValue('_newItemQuantity', e.target.value), type: 'number', min: '1' })}
         </div>
-        ${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._newItemDescription, onInput: e => this._newItemDescription = e.target.value, rows: 3 })}
-        ${this._renderNativeField({ label: this._t('linkOptional'), value: this._newItemLink, onInput: e => this._newItemLink = e.target.value })}
-        <div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._newItemIcon}" @value-changed="${e => this._newItemIcon = e.detail.value}"></ha-icon-picker></div>
+        ${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._newItemDescription, onInput: e => this._setDraftValue('_newItemDescription', e.target.value), rows: 3 })}
+        ${this._renderTagField(this._newItemTags, e => this._setDraftValue('_newItemTags', e.target.value), tag => this._setDraftValue('_newItemTags', this._toggleTagInInput(this._newItemTags, tag), true))}
+        ${this._renderNativeField({ label: this._t('linkOptional'), value: this._newItemLink, onInput: e => this._setDraftValue('_newItemLink', e.target.value) })}
+        <div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._newItemIcon}" @value-changed="${e => this._setDraftValue('_newItemIcon', e.detail.value)}"></ha-icon-picker></div>
         <div class="buttons">
             <mwc-button @click="${() => { this._isAddAreaOpen = false; this._resetNewItemInputs(); }}" class="btn btn-cancel">${this._t('cancel')}</mwc-button>
             <mwc-button @click="${this._handleAddItem}" raised class="btn btn-add">${this._t('add')}</mwc-button>
@@ -936,12 +1153,13 @@ class TodoListCard extends LitElement {
     <div class="add-edit-area edit-area" style="background-color: ${this._config.card_color};" @keydown="${(e) => this._handleKeyDown(e, () => this._handleSaveEdit(item))}">
         <h3>${this._t('editItem')}</h3>
         <div class="row row-2">
-            ${this._renderNativeField({ label: this._t('itemName'), value: this._editSummary, onInput: e => this._editSummary = e.target.value })}
-            ${this._renderNativeField({ label: this._t('qty'), value: this._editQuantity, onInput: e => this._editQuantity = e.target.value, type: 'number', min: '1' })}
+            ${this._renderNativeField({ label: this._t('itemName'), value: this._editSummary, onInput: e => this._setDraftValue('_editSummary', e.target.value) })}
+            ${this._renderNativeField({ label: this._t('qty'), value: this._editQuantity, onInput: e => this._setDraftValue('_editQuantity', e.target.value), type: 'number', min: '1' })}
         </div>
-        ${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._editDescription, onInput: e => this._editDescription = e.target.value, rows: 3 })}
-        ${this._renderNativeField({ label: this._t('linkOptional'), value: this._editLink, onInput: e => this._editLink = e.target.value })}
-        <div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._editIcon}" @value-changed="${e => this._editIcon = e.detail.value}"></ha-icon-picker></div>
+        ${this._renderNativeTextarea({ label: this._t('descriptionOptional'), value: this._editDescription, onInput: e => this._setDraftValue('_editDescription', e.target.value), rows: 3 })}
+        ${this._renderTagField(this._editTags, e => this._setDraftValue('_editTags', e.target.value), tag => this._setDraftValue('_editTags', this._toggleTagInInput(this._editTags, tag), true))}
+        ${this._renderNativeField({ label: this._t('linkOptional'), value: this._editLink, onInput: e => this._setDraftValue('_editLink', e.target.value) })}
+        <div class="icon-picker-field"><span class="field-label">${this._t('icon')}</span><ha-icon-picker class="themed-icon-picker" .value="${this._editIcon}" @value-changed="${e => this._setDraftValue('_editIcon', e.detail.value)}"></ha-icon-picker></div>
         <div class="buttons">
             <mwc-button @click="${(e) => this._handleDeleteItem(e, item)}" class="btn btn-delete">${this._t('delete')}</mwc-button>
             <div style="flex-grow: 1;"></div>
@@ -954,6 +1172,16 @@ class TodoListCard extends LitElement {
   _renderPriorityLabel(priority) {
     const priorityInfo = this._getPriorityInfo(priority); if (!priorityInfo) return '';
     return html`<span class="priority-label" style="background-color: ${priorityInfo.color};" title="${this._t('sortPriorityTitle', { priority: priorityInfo.text })}">${priorityInfo.text}</span>`;
+  }
+
+  _renderTagChips(tags = []) {
+    const cleanTags = this._sanitizeTags(tags);
+    return cleanTags.map(tag => html`<span class="tag-chip">#${tag}</span>`);
+  }
+
+  _renderCheckbox(item) {
+    const isCompleted = item.status === 'completed';
+    return html`<div class="checkbox" @click="${(e) => this._handleStatusUpdate(e, item)}"><ha-icon icon="${isCompleted ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon></div>`;
   }
 
   _renderSubtasks(task) {
@@ -986,33 +1214,46 @@ class TodoListCard extends LitElement {
   }
 
   _renderTask(task) {
-    const isCompleted = task.status === 'completed'; const textColor = isCompleted ? this._config.completed_text_color : this._config.text_color; const metadata = task._cachedMetadata ?? {}; const description = metadata.description || null; const priority = metadata.priority || DEFAULT_PRIORITY; const icon = metadata.icon || this._getDefaultTaskIcon(); const dueDate = task.due || null; const dueDateStatus = this._getDueDateStatus(dueDate);
-    const subtasks = metadata.subtasks || []; const completedSubtasks = subtasks.filter(s => s.status === 'completed').length; const totalSubtasks = subtasks.length; const hasDescription = !!description; const hasDueDate = !isCompleted && !!dueDate;
+    const isCompleted = task.status === 'completed';
+    const textColor = isCompleted ? this._config.completed_text_color : this._config.text_color;
+    const metadata = task._cachedMetadata ?? {};
+    const description = metadata.description || null;
+    const priority = metadata.priority || DEFAULT_PRIORITY;
+    const tags = metadata.tags || [];
+    const icon = this._getItemIcon(metadata);
+    const dueDate = task.due || null;
+    const dueDateStatus = this._getDueDateStatus(dueDate);
+    const subtasks = metadata.subtasks || [];
+    const completedSubtasks = subtasks.filter(s => s.status === 'completed').length;
+    const totalSubtasks = subtasks.length;
+    const hasDueDate = !isCompleted && !!dueDate;
+    const checkboxLeft = !icon && this._config.checkbox_position === 'left';
+    const hasMeta = hasDueDate || (this._config.show_priority && !isCompleted) || tags.length || (totalSubtasks > 0 && !isCompleted);
+
     return html`
       <div class="task-container">
-        <div class="task-item ${isCompleted ? 'completed' : 'active'} ${dueDateStatus || ''}" @click="${() => this._toggleExpand(task.uid)}" style="background-color: ${isCompleted ? this._config.completed_color : this._config.card_color}; color: ${textColor};">
-          <div class="icon" style="background-color: ${this._config.icon_background};"><ha-icon icon="${icon}"></ha-icon></div>
+        <div class="task-item ${isCompleted ? 'completed' : 'active'} ${dueDateStatus || ''} ${icon ? 'has-icon' : 'no-icon'} ${checkboxLeft ? 'checkbox-left' : 'checkbox-right'}" @click="${() => this._toggleExpand(task.uid)}" style="background-color: ${isCompleted ? this._config.completed_color : this._config.card_color}; color: ${textColor};">
+          ${checkboxLeft ? this._renderCheckbox(task) : ''}
+          ${icon ? html`<div class="icon" style="background-color: ${this._config.icon_background};"><ha-icon icon="${icon}"></ha-icon></div>` : ''}
           <div class="task-text">
-            <div class="summary">
-              <span>${task.summary}</span>
-              ${this._config.show_priority && !isCompleted ? this._renderPriorityLabel(priority) : ''}
-              ${totalSubtasks > 0 && !isCompleted ? html`
-                <div class="subtask-progress" title="${completedSubtasks} of ${totalSubtasks} completed">
-                  <ha-icon icon="mdi:format-list-checks"></ha-icon>
-                  <span>${completedSubtasks}/${totalSubtasks}</span>
-                  <div class="progress-bar-background"><div class="progress-bar-foreground" style="width: ${totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0}%;"></div></div>
-                </div>
-              ` : ''}
-            </div>
-            ${hasDescription || hasDueDate ? html`
-              <div class="priority">
-                ${hasDescription ? html`<span>${description}</span>` : ''}
-                ${hasDescription && hasDueDate ? html`<span class="separator"> </span>` : ''}
-                ${hasDueDate ? html`<span class="due-date-wrapper"><ha-icon icon="mdi:clock-time-four"></ha-icon>${this._formatDueDate(dueDate)}</span>` : ''}
+            <div class="summary"><span>${task.summary}</span></div>
+            ${description ? html`<div class="description">${description}</div>` : ''}
+            ${hasMeta ? html`
+              <div class="task-meta">
+                ${hasDueDate ? html`<span class="due-date-wrapper"><ha-icon icon="mdi:calendar-clock"></ha-icon>${this._formatDueDate(dueDate)}</span>` : ''}
+                ${this._config.show_priority && !isCompleted ? this._renderPriorityLabel(priority) : ''}
+                ${this._renderTagChips(tags)}
+                ${totalSubtasks > 0 && !isCompleted ? html`
+                  <span class="subtask-progress" title="${completedSubtasks} of ${totalSubtasks} completed">
+                    <ha-icon icon="mdi:format-list-checks"></ha-icon>
+                    <span>${completedSubtasks}/${totalSubtasks}</span>
+                    <span class="progress-bar-background"><span class="progress-bar-foreground" style="width: ${totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0}%;"></span></span>
+                  </span>
+                ` : ''}
               </div>
             ` : ''}
           </div>
-          <div class="checkbox" @click="${(e) => this._handleStatusUpdate(e, task)}"><ha-icon icon="${isCompleted ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon></div>
+          ${checkboxLeft ? '' : this._renderCheckbox(task)}
         </div>
         ${this._expandedTaskId === task.uid ? this._renderSubtasks(task) : ''}
         ${this._editedTaskId === task.uid ? this._renderEditForm(task) : ''}
@@ -1021,33 +1262,44 @@ class TodoListCard extends LitElement {
   }
 
   _renderShoppingItem(item) {
-    const isCompleted = item.status === 'completed'; const textColor = isCompleted ? this._config.completed_text_color : this._config.text_color; const metadata = item._cachedMetadata ?? {}; const description = metadata.description || null; const link = metadata.link || null; const quantity = metadata.quantity || null;
-    const subtasks = metadata.subtasks || []; const completedSubtasks = subtasks.filter(s => s.status === 'completed').length; const totalSubtasks = subtasks.length;
-    // Icon logic for shopping
-    const icon = metadata.icon || DEFAULT_ICON;
-    // Show icon only if it's NOT the default blank outline
-    const showIcon = icon !== DEFAULT_ICON;
+    const isCompleted = item.status === 'completed';
+    const textColor = isCompleted ? this._config.completed_text_color : this._config.text_color;
+    const metadata = item._cachedMetadata ?? {};
+    const description = metadata.description || null;
+    const link = metadata.link || null;
+    const quantity = metadata.quantity || null;
+    const tags = metadata.tags || [];
+    const subtasks = metadata.subtasks || [];
+    const completedSubtasks = subtasks.filter(s => s.status === 'completed').length;
+    const totalSubtasks = subtasks.length;
+    const icon = this._getItemIcon(metadata);
+    const checkboxLeft = !icon && this._config.checkbox_position === 'left';
+    const hasMeta = quantity || tags.length || (totalSubtasks > 0 && !isCompleted);
 
     return html`
       <div class="task-container">
-        <div class="task-item shopping-item ${isCompleted ? 'completed' : 'active'}" @click="${() => this._toggleExpand(item.uid)}" style="background-color: ${isCompleted ? this._config.completed_color : this._config.card_color}; color: ${textColor};">
-          ${showIcon ? html`<div class="icon" style="background-color: ${this._config.icon_background};"><ha-icon icon="${icon}"></ha-icon></div>` : ''}
-          <div class="task-text" style="${showIcon ? 'padding-left: 0;' : ''}">
-            <div class="summary">
-                <span>${item.summary}</span>
-                ${quantity ? html`<span class="quantity">(x${quantity})</span>` : ''}
+        <div class="task-item shopping-item ${isCompleted ? 'completed' : 'active'} ${icon ? 'has-icon' : 'no-icon'} ${checkboxLeft ? 'checkbox-left' : 'checkbox-right'}" @click="${() => this._toggleExpand(item.uid)}" style="background-color: ${isCompleted ? this._config.completed_color : this._config.card_color}; color: ${textColor};">
+          ${checkboxLeft ? this._renderCheckbox(item) : ''}
+          ${icon ? html`<div class="icon" style="background-color: ${this._config.icon_background};"><ha-icon icon="${icon}"></ha-icon></div>` : ''}
+          <div class="task-text">
+            <div class="summary"><span>${item.summary}</span></div>
+            ${description ? html`<div class="description">${description}</div>` : ''}
+            ${hasMeta ? html`
+              <div class="task-meta">
+                ${quantity ? html`<span class="quantity">x${quantity}</span>` : ''}
+                ${this._renderTagChips(tags)}
                 ${totalSubtasks > 0 && !isCompleted ? html`
-                    <div class="subtask-progress" title="${completedSubtasks} of ${totalSubtasks} completed">
-                        <ha-icon icon="mdi:format-list-checks"></ha-icon>
-                        <span>${completedSubtasks}/${totalSubtasks}</span>
-                        <div class="progress-bar-background"><div class="progress-bar-foreground" style="width: ${totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0}%;"></div></div>
-                    </div>
+                  <span class="subtask-progress" title="${completedSubtasks} of ${totalSubtasks} completed">
+                    <ha-icon icon="mdi:format-list-checks"></ha-icon>
+                    <span>${completedSubtasks}/${totalSubtasks}</span>
+                    <span class="progress-bar-background"><span class="progress-bar-foreground" style="width: ${totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0}%;"></span></span>
+                  </span>
                 ` : ''}
-            </div>
-            ${description ? html`<div class="priority">${description}</div>` : ''}
+              </div>
+            ` : ''}
           </div>
           ${link ? html`<ha-icon class="link-button" icon="mdi:open-in-new" @click="${(e) => this._handleOpenLink(e, link)}"></ha-icon>` : ''}
-          <div class="checkbox" @click="${(e) => this._handleStatusUpdate(e, item)}"><ha-icon icon="${isCompleted ? 'mdi:checkbox-marked' : 'mdi:checkbox-blank-outline'}"></ha-icon></div>
+          ${checkboxLeft ? '' : this._renderCheckbox(item)}
         </div>
         ${this._expandedTaskId === item.uid ? this._renderSubtasks(item) : ''}
         ${this._editedTaskId === item.uid ? this._renderEditForm(item) : ''}
@@ -1065,7 +1317,6 @@ class TodoListCard extends LitElement {
       ha-card { 
         display: flex; 
         flex-direction: column; 
-        height: 100%; 
         overflow: visible; /* Allows dropdown to extend outside */
         /* isolation: isolate; REMOVED to allow stacking interactions with siblings */
       }
@@ -1076,34 +1327,41 @@ class TodoListCard extends LitElement {
       .header-buttons { display: flex; align-items: center; gap: 4px; }
       .clear-button, .add-button, .filter-button, .search-button { color: var(--secondary-text-color); }
       ha-icon {display:flex!important;}
-      .btn {border-radius: 20px; padding: 4px 12px; pointer: cursor;}
+      .btn {border-radius: 20px; padding: 4px 12px; cursor: pointer;}
       .btn-edit, .btn-add {background:var(--primary-color); color: var(--mdc-theme-on-secondary); }
       .btn-delete {background:var(--error-color); color: var(--mdc-theme-on-secondary); }
       .btn-cancel {background:var(--card-background-color);}
       .warning, .empty-list, .loading { padding: 16px; text-align: center; }
       .error-message { padding: 12px; margin: 0 12px 12px; background-color: var(--error-color); color: var(--text-primary-color); border-radius: var(--ha-card-border-radius, 12px); text-align: center; cursor: pointer; }
-      .card-content { flex-grow: 1; overflow-y: auto; }
-      .task-item { display: flex; align-items: center; padding: 4px; min-height: 58px; border-radius: var(--ha-card-border-radius, 12px); cursor: pointer; margin-top: 8px; position: relative; z-index: 1; }
-      .summary { font-weight: 500; font-size: 16px; display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; }
-      .priority-label { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 8px; margin-left: 4px; color: var(--text-primary-color); opacity: 0.9; flex-shrink: 0; }
+      .card-content { flex-grow: 1; overflow: visible; }
+      .task-item { display: flex; align-items: center; padding: 8px 10px; min-height: 58px; border-radius: var(--ha-card-border-radius, 12px); cursor: pointer; margin-top: 8px; position: relative; z-index: 1; gap: 10px; }
+      .task-item.no-icon { padding-left: 16px; }
+      .task-item.no-icon.checkbox-left { padding-left: 16px; }
+      .summary { font-weight: 500; font-size: 16px; line-height: 1.25; display: flex; align-items: center; min-width: 0; }
+      .summary span { overflow-wrap: anywhere; }
+      .description { font-size: 13px; line-height: 1.3; opacity: 0.74; margin-top: 3px; overflow-wrap: anywhere; }
+      .task-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 8px; font-size: 12px; line-height: 1.2; color: var(--secondary-text-color); }
+      .priority-label, .tag-chip, .quantity { display: inline-flex; align-items: center; min-height: 18px; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 8px; color: var(--text-primary-color); opacity: 0.9; flex-shrink: 0; }
+      .tag-chip { background: rgba(128, 128, 128, 0.18); color: var(--primary-text-color); }
       .task-item.overdue .due-date-wrapper { color: var(--error-color)!important; }
       .task-item.due-today .due-date-wrapper { color: var(--warning-color)!important; }
       .task-container:first-child .task-item { margin-top: 0; }
       .task-item.completed { opacity: 0.7; }
       .completed .summary > span:first-child { text-decoration: line-through; }
-      .completed .priority { color: inherit; }
-      .icon { display: flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 50%; border: 1px solid rgba(250, 251, 252, 0.06); margin-right: 12px; flex-shrink: 0; }
-      .task-text { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; padding: 0; }
-      .quantity { font-weight: normal; opacity: 0.8; margin-left: 4px; flex-shrink: 0; }
+      .completed .task-meta { color: inherit; }
+      .completed .tag-chip, .completed .quantity { background: rgba(0, 0, 0, 0.2); color: inherit; opacity: 0.75; }
+      .icon { display: flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 50%; border: 1px solid rgba(250, 251, 252, 0.06); flex-shrink: 0; }
+      .task-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; padding: 0; }
+      .quantity { background: rgba(128, 128, 128, 0.18); color: var(--primary-text-color); }
       .priority { font-size: 14px; font-weight: 400; opacity: 0.7; display: flex; align-items: center; flex-wrap: wrap; }
       .priority .separator { margin: 0 3px; }
-      .due-date-wrapper { display: inline-flex; align-items: center; }
-      .due-date-wrapper ha-icon { --mdc-icon-size: 1.1em; margin-right: 4px; opacity: 0.9; }
-      .checkbox { margin-left: 8px; margin-right: 8px; border-radius: 50%; padding: 4px; transition: background-color 0.2s; }
+      .due-date-wrapper { display: inline-flex; align-items: center; gap: 4px; }
+      .due-date-wrapper ha-icon { --mdc-icon-size: 1.1em; opacity: 0.9; }
+      .checkbox { border-radius: 50%; padding: 4px; transition: background-color 0.2s; flex-shrink: 0; }
       .checkbox:hover { background-color: rgba(255, 255, 255, 0.1); }
       .add-edit-area { border-radius: var(--ha-card-border-radius, 12px); margin-bottom: 12px; animation: slide-down 0.3s ease-out; position: relative; z-index: 0; padding: 16px; }
       .add-edit-area.rapid-add { display: flex; flex-direction: row; align-items: center; padding: 8px 16px; justify-content: space-between; gap: 8px; }
-      .add-edit-area.rapid-add ha-input { flex-grow: 1; margin-bottom: 0; }
+      .add-edit-area.rapid-add .custom-field { flex-grow: 1; margin-bottom: 0; }
       .add-edit-area.rapid-add .btn-add { margin-top: 0; flex-shrink: 0; }
       .edit-area { margin-top: -56px; padding-top: 66px; }
       .add-edit-area.edit-area { animation: slide-down-subtle 0.3s ease-out; }
@@ -1117,6 +1375,12 @@ class TodoListCard extends LitElement {
         width: 100%;
         margin-bottom: 8px;
       }
+      .tag-field { margin-bottom: 8px; }
+      .tag-field .custom-field { margin-bottom: 0; }
+      .tag-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+      .tag-suggestion { border: 1px solid var(--divider-color); border-radius: 8px; background: rgba(128, 128, 128, 0.14); color: var(--primary-text-color); padding: 4px 8px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+      .tag-suggestion.selected { border-color: var(--primary-color); color: var(--primary-color); background: rgba(var(--rgb-primary-color, 3, 169, 244), 0.12); }
+      .tag-suggestion:hover { background: rgba(128, 128, 128, 0.22); }
       .add-edit-area .field-label,
       .add-edit-area .select-label {
         color: var(--secondary-text-color);
@@ -1134,6 +1398,11 @@ class TodoListCard extends LitElement {
         background: var(--todo-card-field-background);
         color: var(--primary-text-color);
         font: inherit;
+        font-size: 16px;
+        line-height: 1.35;
+        -webkit-text-size-adjust: 100%;
+        -webkit-appearance: none;
+        appearance: none;
       }
       .add-edit-area .custom-field textarea {
         min-height: 96px;
@@ -1161,9 +1430,8 @@ class TodoListCard extends LitElement {
       .add-edit-area .row { display: flex; gap: 8px; align-items: flex-end; }
       .add-edit-area .row.row-2 > * { flex: 1; }
       .add-edit-area .buttons, .subtask-buttons { display: flex; justify-content: flex-end; margin-top: 16px; gap: 12px; }
-      .shopping-item .task-text { padding-left: 20px; }
-      .link-button { margin-left: auto; color: var(--secondary-text-color); }
-      .subtask-progress { display: flex; align-items: center; font-size: 12px; margin-left: 8px; color: var(--secondary-text-color); background: rgba(128, 128, 128, 0.2); padding: 2px 6px; border-radius: 8px; flex-shrink: 0;}
+      .link-button { color: var(--secondary-text-color); flex-shrink: 0; }
+      .subtask-progress { display: inline-flex; align-items: center; font-size: 12px; color: var(--secondary-text-color); background: rgba(128, 128, 128, 0.2); padding: 2px 6px; border-radius: 8px; flex-shrink: 0;}
       .subtask-progress ha-icon { --mdc-icon-size: 1.2em; margin-right: 4px; }
       .progress-bar-background { flex-grow: 1; height: 4px; background-color: rgba(128, 128, 128, 0.3); border-radius: 2px; margin-left: 6px; min-width: 30px; }
       .progress-bar-foreground { height: 100%; background-color: var(--secondary-text-color); border-radius: 2px; transition: width 0.3s ease; }
@@ -1180,6 +1448,22 @@ class TodoListCard extends LitElement {
       /* Search Bar Styles */
       .search-bar-container { padding: 0 16px 30px 16px; animation: slide-down-subtle 0.2s ease-out; }
       .search-bar-container ha-input { width: 100%; }
+      .search-bar-container ha-input,
+      .add-subtask-row ha-input {
+        --mdc-typography-subtitle1-font-size: 16px;
+        --mdc-typography-body1-font-size: 16px;
+        --paper-input-container-input-font-size: 16px;
+      }
+
+      @media (hover: none) and (pointer: coarse) {
+        .add-edit-area,
+        .add-edit-area.edit-area,
+        .subtask-area,
+        .search-bar-container {
+          animation: none;
+        }
+
+      }
 
       /* Filter Menu Styles */
       .filter-menu-container { position: relative; }
@@ -1203,11 +1487,18 @@ class TodoListCard extends LitElement {
         transition: background-color 0.1s; 
       }
       .filter-option:hover { background-color: rgba(128,128,128,0.1); }
+      .filter-section-title { padding: 6px 16px 4px; font-size: 11px; font-weight: 700; line-height: 1.2; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing: 0; }
       .filter-option ha-icon { margin-right: 12px; --mdc-icon-size: 20px; color: var(--primary-color); }
       .filter-option span { font-size: 14px; color: var(--primary-text-color); }
+      .filter-divider { height: 1px; background: var(--divider-color, rgba(128,128,128,0.24)); margin: 6px 0; }
+      .tag-group { margin-top: 14px; }
+      .tag-group:first-of-type { margin-top: 0; }
+      .tag-heading { display: flex; align-items: center; gap: 6px; padding: 4px 4px 2px; font-size: 15px; font-weight: 700; color: var(--primary-text-color); }
+      .tag-heading span:last-child { font-size: 12px; font-weight: 600; color: var(--secondary-text-color); }
+      .tag-heading + .task-container .task-item { margin-top: 6px; }
 
-      @keyframes slide-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes slide-down-subtle { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes slide-down { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes slide-down-subtle { from { opacity: 0; } to { opacity: 1; } }
     `;
   }
 }
@@ -1232,6 +1523,9 @@ class TodoListCardEditor extends LitElement {
     this._config = {
       default_task_icon: DEFAULT_TASK_ICON,
       language: DEFAULT_LANGUAGE,
+      show_tag_headings: false,
+      tag_order: [],
+      checkbox_position: 'right',
       ...config,
     };
     this._loadTranslations();
@@ -1314,6 +1608,7 @@ class TodoListCardEditor extends LitElement {
               <select .value=${this._config.sort_by || 'priority'} @change=${this._sortbyChanged}>
                 <option value="priority">${this._t('priority')}</option>
                 <option value="duedate">${this._t('dueDate')}</option>
+                <option value="tag">${this._t('tag')}</option>
                 <option value="title">${this._t('title')}</option>
               </select>
             </label>
@@ -1348,7 +1643,25 @@ class TodoListCardEditor extends LitElement {
             <option value="de">${this._t('languageDe')}</option>
           </select>
         </label>
+        <ha-formfield label="${this._t('showIcon')}"><ha-switch .checked=${this._config.show_icon !== false} @change=${this._showIconChanged}></ha-switch></ha-formfield>
+        ${this._config.show_icon === false ? html`
+          <label class="select-field">
+            <span class="select-label">${this._t('checkboxPosition')}</span>
+            <select .value=${this._config.checkbox_position || 'right'} @change=${this._checkboxPositionChanged}>
+              <option value="right">${this._t('checkboxPositionRight')}</option>
+              <option value="left">${this._t('checkboxPositionLeft')}</option>
+            </select>
+          </label>
+        ` : ''}
         <ha-formfield label="${this._t('showPriority')}"><ha-switch .checked=${this._config.show_priority !== false} @change=${this._showPriorityChanged}></ha-switch></ha-formfield>
+        <ha-formfield label="${this._t('showTagHeadings')}"><ha-switch .checked=${this._config.show_tag_headings === true} @change=${this._showTagHeadingsChanged}></ha-switch></ha-formfield>
+        ${this._config.show_tag_headings ? html`
+          <label class="custom-field">
+            <span class="field-label">${this._t('tagOrder')}</span>
+            <input .value=${(this._config.tag_order || []).join(', ')} @change=${this._tagOrderChanged} />
+            <span class="field-helper">${this._t('tagOrderHelp')}</span>
+          </label>
+        ` : ''}
         <ha-formfield label="${this._t('confirmBeforeDelete')}"><ha-switch .checked=${this._config.confirm_delete !== false} @change=${this._confirmDeleteChanged}></ha-switch></ha-formfield>
         <ha-formfield label="${this._t('autoCompleteParentTask')}"><ha-switch .checked=${this._config.auto_complete_parent === true} @change=${this._autoCompleteChanged}></ha-switch></ha-formfield>
         <ha-formfield label="${this._t('showFilterMenu')}"><ha-switch .checked=${this._config.show_filter_menu !== false} @change=${this._showFilterMenuChanged}></ha-switch></ha-formfield>
@@ -1371,7 +1684,14 @@ class TodoListCardEditor extends LitElement {
   _completedTextColorChanged(ev) { this.configChanged({ ...this._config, completed_text_color: ev.target.value }); }
   _defaultTaskIconChanged(ev) { this.configChanged({ ...this._config, default_task_icon: ev.detail.value || DEFAULT_TASK_ICON }); }
   _languageChanged(ev) { this.configChanged({ ...this._config, language: ev.target.value || DEFAULT_LANGUAGE }); }
+  _showIconChanged(ev) { this.configChanged({ ...this._config, show_icon: ev.target.checked }); }
+  _checkboxPositionChanged(ev) { if (!ev.target.value) return; this.configChanged({ ...this._config, checkbox_position: ev.target.value }); }
   _showPriorityChanged(ev) { this.configChanged({ ...this._config, show_priority: ev.target.checked }); }
+  _showTagHeadingsChanged(ev) { this.configChanged({ ...this._config, show_tag_headings: ev.target.checked }); }
+  _tagOrderChanged(ev) {
+    const tagOrder = [...new Set(ev.target.value.split(',').map(tag => tag.trim()).filter(Boolean))];
+    this.configChanged({ ...this._config, tag_order: tagOrder });
+  }
   _confirmDeleteChanged(ev) { this.configChanged({ ...this._config, confirm_delete: ev.target.checked }); }
   _autoCompleteChanged(ev) { this.configChanged({ ...this._config, auto_complete_parent: ev.target.checked }); }
   _showFilterMenuChanged(ev) { this.configChanged({ ...this._config, show_filter_menu: ev.target.checked }); }
