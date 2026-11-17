@@ -1,6 +1,6 @@
 {
   "name": "todo-card",
-  "version": "v1.7.1",
+  "version": "v1.8.0",
   "main": "todo-card.js",
   "type": "module",
   "homepage": "https://github.com/agoberg85/home-assistant-todo-card",
